@@ -52,9 +52,8 @@ bigcov <- function(data, center = TRUE, scale = FALSE,
   
   ### build the cov. matrix block by block
   covmat <- matrix(0, ncol = p, nrow = p)
+  
   for(i in 1:length(blocks)) {
-    cell1 <- blocks[[i]]$cell1
-    cell2 <- blocks[[i]]$cell2
     ind1 <- blocks[[i]]$ind1
     ind2 <- blocks[[i]]$ind2
     cov <- blocks[[i]]$cov
