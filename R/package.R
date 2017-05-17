@@ -4,6 +4,7 @@
 #' @docType package
 #'
 #' @importFrom plyr llply
+#' @importFrom Matrix symmpart isSymmetric forceSymmetric
 NULL
 
 
