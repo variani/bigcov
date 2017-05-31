@@ -18,6 +18,6 @@ test_that("crossprod vs big_crossprod functions", {
   mat <- crossprod(as.matrix(dat))
   b_mat <- big_crossprod(dat)
   
-  expect_equal(as.numeric(cov_mat), as.numeric(bigcov_mat), tol = 1e-10)
+  expect_equal(as.numeric(mat), as.numeric(b_mat), tol = 1e-10)
 })
 

@@ -17,6 +17,7 @@ Suggests:
     pls
 Collate:
     'package.R'
+    'utils.R'
     'crossprod.R'
     'bigcov.R'
     'relmat.R'

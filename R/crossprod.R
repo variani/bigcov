@@ -16,13 +16,12 @@ big_crossprod <- function(data,
   ### split into batches
   if(verbose) {
     cat(" - big_crossprod: preparing batches of block-pairs from ", num_splits, "splits\n")
-  }  
-  split_size <- ceiling(p / num_splits)
-  stopifnot(split_size > 1)  
-   
-  beg <- seq(1, by = split_size, length = num_splits)
-  end <- beg - 1 + split_size
-  end[length(end)] <- p
+  } 
+  split_size <- compute_split_size(p, num_splits)
+  beg <- compute_splits_beg(p, split_size)
+  end <- compute_splits_end(p, split_size, beg)
+  
+  num_splits <- length(beg)
 
   batches <- llply(1:num_splits, function(i) {
     list(batch = i, beg = beg[i], end = end[i])
@@ -108,12 +107,12 @@ big_tcrossprod <- function(data,
   if(verbose) {
     cat(" - big_tcrossprod: preparing batches of block-pairs from ", num_splits, "splits\n")
   }  
-  split_size <- ceiling(n / num_splits)
-  stopifnot(split_size > 1)  
-   
-  beg <- seq(1, by = split_size, length = num_splits)
-  end <- beg - 1 + split_size
-  end[length(end)] <- n
+  # split
+  split_size <- compute_split_size(n, num_splits)
+  beg <- compute_splits_beg(n, split_size)
+  end <- compute_splits_end(n, split_size, beg)
+  
+  num_splits <- length(beg)
 
   batches <- llply(1:num_splits, function(i) {
     list(batch = i, beg = beg[i], end = end[i])

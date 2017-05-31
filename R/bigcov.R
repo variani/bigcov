@@ -17,11 +17,15 @@ big_cov <- function(data, center = TRUE, scale = FALSE,
   n <- nrow(data)
   p <- ncol(data)
   
+  transform <- center | scale
+    
   ### scale
-  data <- scale(data, center = center, scale = scale)
+  if(transform) {
+    data <- scale(data, center = center, scale = scale)
+  }
   
   ### compute crossprod
-  covmat <- big_crossprod(data, center = center, scale = scale,
+  covmat <- big_crossprod(data,
     num_splits = num_splits, verbose = verbose, ...)
   
   covmat <- covmat / (n - 1)
