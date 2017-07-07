@@ -21,3 +21,9 @@ system.time(cov(mat)) # elapsed 0.625
 
 system.time(bigcov(mat, num_batches = 2)) # 0.372
 ```
+
+## Data formats
+
+- matrix
+- bigmemory
+- https://github.com/QuantGen/BEDMatrix (to be implemented)
