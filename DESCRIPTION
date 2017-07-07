@@ -9,7 +9,10 @@ Description: Covariance/Correlation for big data. Supposed data structures are f
 License: GPL (>= 3)
 Imports:
     plyr,
-    Matrix
+    dplyr,
+    magrittr,
+    Matrix,
+    bigmemory
 Suggests:
     testthat,
     knitr,
@@ -18,7 +21,10 @@ Suggests:
 Collate:
     'package.R'
     'utils.R'
+    'bigdat.R'
     'crossprod.R'
+    'crossprod_bigdat.R'
     'bigcov.R'
     'relmat.R'
+    'grm.R'
 RoxygenNote: 6.0.1
