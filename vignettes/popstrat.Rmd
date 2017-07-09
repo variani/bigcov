@@ -17,8 +17,8 @@ opts_chunk$set(comment = NA, results = 'markup', tidy = F, message = F, warning 
 
 # About
 
-Population stratification is an important part of genome-wide association study (GWAS) analysis 
-in a population consisting of different sub-populations.
+Population stratification is an important part of association studies
+conducted in a population consisting of different sub-populations.
 The standard approach exploited in the analysis of common genetic markers is 
 to estimate generic relatedness matrix (GRM) [@Patterson2006].
 Recently, [@Prokopenko2015] proposed to use Jacard similarity matrix 
@@ -32,10 +32,11 @@ in the following settings.
 | Rare SNPs | [0.001; 0.005] | 200 | 1,000 | GRM | 
 | Rare SNPs | [0.001; 0.005] | 200 | 1,000, 2,000 & 4,000 | Jacard | 
 
-We will use the same toy example of two population as in [jacpop](https://cran.r-project.org/web/packages/jacpop)
-(two populations with Fst = 0.1). We will also perform the analysis for data stored in plink format.
+We will use the same toy example of two population as in R package [jacpop](https://cran.r-project.org/web/packages/jacpop) 
+reference manual (two populations with Fst = 0.1). 
+Also, we will show an example of analysis for data stored in plink format.
 
-## Workhorse functions in `bigcov`
+## Work-horse functions in `bigcov`
 
 Functions `bigdat_grm` and `bigdat_jacard` take input genotype data and 
 convert them in `bigdat` format (also part of `bigcov`), which has a few practical features:
@@ -52,9 +53,9 @@ convert them in `bigdat` format (also part of `bigcov`), which has a few practic
 # Preliminaries
 
 ```{r inc}
-library(BEDMatrix)
+library(BEDMatrix) # to read plink data efficiently
 
-library(RSpectra)
+library(RSpectra) # to perform PCA with a few components, e.g. 2
 
 #library(bigcov)
 library(devtools)
@@ -96,6 +97,10 @@ sim_pop <- function(N = 200, M = 1000, Fst = 0.1, maf_max = 0.5, maf_min = 0.05,
 ```{r plot_pop}
 plot_pop <- function(mod, labs, ...)
 {
+  if(missing(labs)) {
+    labs <- factor(rep("Pop", nrow(mod$vectors)))
+  }
+  
   plot(mod$vectors[, 1], mod$vectors[, 2], type = "n", 
     xlab = "PC1", ylab = "PC2", ...)
   text(mod$vectors[, 1], mod$vectors[, 2], label = labs, col = as.numeric(labs))
@@ -218,7 +223,7 @@ bmat[1:5, 1:5]
 ```{r grm_plink}
 N <- nrow(bmat)
 
-grm <- bigdat_grm(bmat)
+grm <- bigdat_grm(bmat, num_batches = 2, verbose = 2)
 
 mod <- eigs(grm, k = 2)
 
