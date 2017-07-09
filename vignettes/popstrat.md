@@ -34,7 +34,7 @@ convert them in `bigdat` format (also part of `bigcov`), which has a few practic
   and plink via R package [BEDMatrix](https://github.com/QuantGen/BEDMatrix);
 - avoid loading the whole data matrix into RAM (for the later two formats) 
   and split the data into batches (either `num_batches` or `batch_size` arguments);
-      - splitting into batches improves the performance
+      - splitting into batches improves the performance, as shown by [SNPRelate](http://corearray.sourceforge.net/tutorials/SNPRelate/)
 - support of several `bigmemory` or plink files, e.g. files per chromosomes;
 - parallel computing (coming soon).
   
@@ -314,5 +314,51 @@ We need to test examples not covered in this document:
 
 That will give us an idea whether R is powerful enough for big data in genetics
 (spoiler: yes, it is). 
+
+# R session info
+
+
+```r
+sessionInfo()
+```
+
+```
+R version 3.3.3 (2017-03-06)
+Platform: i686-pc-linux-gnu (32-bit)
+Running under: Ubuntu 14.04.5 LTS
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] bigcov_0.1.1    RSpectra_0.12-0 BEDMatrix_1.4.0 rmarkdown_1.3  
+[5] knitr_1.15.1    devtools_1.12.0
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_0.12.8         bigmemory.sri_0.1.3 magrittr_1.5       
+ [4] roxygen2_5.0.1      lattice_0.20-34     R6_2.2.0           
+ [7] bigmemory_4.5.19    stringr_1.1.0       plyr_1.8.4         
+[10] dplyr_0.5.0         tools_3.3.3         grid_3.3.3         
+[13] data.table_1.10.0   DBI_0.5-1           withr_1.0.2        
+[16] htmltools_0.3.5     lazyeval_0.2.0      yaml_2.1.14        
+[19] rprojroot_1.1       digest_0.6.10       assertthat_0.1     
+[22] tibble_1.2          crayon_1.3.2        Matrix_1.2-7.1     
+[25] testthat_1.0.2      memoise_1.0.0       evaluate_0.10      
+[28] stringi_1.1.2       backports_1.0.4     crochet_1.0.0      
+```
+
+# License
+
+This document is licensed under the Creative Commons Attribution 4.0 International Public License. 
+
+[![Creative Commons License](http://i.creativecommons.org/l/by/4.0/88x31.png)](http://creativecommons.org/licenses/by/4.0/)
 
 # References

@@ -45,7 +45,7 @@ convert them in `bigdat` format (also part of `bigcov`), which has a few practic
   and plink via R package [BEDMatrix](https://github.com/QuantGen/BEDMatrix);
 - avoid loading the whole data matrix into RAM (for the later two formats) 
   and split the data into batches (either `num_batches` or `batch_size` arguments);
-      - splitting into batches improves the performance
+      - splitting into batches improves the performance, as shown by [SNPRelate](http://corearray.sourceforge.net/tutorials/SNPRelate/)
 - support of several `bigmemory` or plink files, e.g. files per chromosomes;
 - parallel computing (coming soon).
   
@@ -235,5 +235,17 @@ We need to test examples not covered in this document:
 
 That will give us an idea whether R is powerful enough for big data in genetics
 (spoiler: yes, it is). 
+
+# R session info
+
+```{r session_info}
+sessionInfo()
+```
+
+# License
+
+This document is licensed under the Creative Commons Attribution 4.0 International Public License. 
+
+[![Creative Commons License](http://i.creativecommons.org/l/by/4.0/88x31.png)](http://creativecommons.org/licenses/by/4.0/)
 
 # References
