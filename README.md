@@ -4,6 +4,12 @@
 
 Covariance/Correlation for big data
 
+## References
+
+- Vignette [Population stratification using GRM and Jacard](https://variani.github.io/bigcov/vignettes/popstrat.html) (alternative [link](https://htmlpreview.github.io/?https://raw.githubusercontent.com/variani/bigcov/gh-pages/vignettes/popstrat.html))
+
+## Code examples
+
 ```
 ### timing #1
 mat <- matrix(rnorm(1e6), nrow = 1e2, ncol = 1e4)
@@ -26,4 +32,4 @@ system.time(bigcov(mat, num_batches = 2)) # 0.372
 
 - matrix
 - bigmemory
-- https://github.com/QuantGen/BEDMatrix (to be implemented)
+- plink via [BEDMatrix](https://github.com/QuantGen/BEDMatrix)
