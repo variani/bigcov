@@ -6,8 +6,8 @@ Andrey Ziyatdinov
 
 # About
 
-Population stratification is an important part of genome-wide association study (GWAS) analysis 
-in a population consisting of different sub-populations.
+Population stratification is an important part of association studies
+conducted in a population consisting of different sub-populations.
 The standard approach exploited in the analysis of common genetic markers is 
 to estimate generic relatedness matrix (GRM) [@Patterson2006].
 Recently, [@Prokopenko2015] proposed to use Jacard similarity matrix 
@@ -21,10 +21,11 @@ in the following settings.
 | Rare SNPs | [0.001; 0.005] | 200 | 1,000 | GRM | 
 | Rare SNPs | [0.001; 0.005] | 200 | 1,000, 2,000 & 4,000 | Jacard | 
 
-We will use the same toy example of two population as in [jacpop](https://cran.r-project.org/web/packages/jacpop)
-(two populations with Fst = 0.1). We will also perform the analysis for data stored in plink format.
+We will use the same toy example of two population as in R package [jacpop](https://cran.r-project.org/web/packages/jacpop) 
+reference manual (two populations with Fst = 0.1). 
+Also, we will show an example of analysis for data stored in plink format.
 
-## Workhorse functions in `bigcov`
+## Work-horse functions in `bigcov`
 
 Functions `bigdat_grm` and `bigdat_jacard` take input genotype data and 
 convert them in `bigdat` format (also part of `bigcov`), which has a few practical features:
@@ -42,9 +43,9 @@ convert them in `bigdat` format (also part of `bigcov`), which has a few practic
 
 
 ```r
-library(BEDMatrix)
+library(BEDMatrix) # to read plink data efficiently
 
-library(RSpectra)
+library(RSpectra) # to perform PCA with a few components, e.g. 2
 
 #library(bigcov)
 library(devtools)
@@ -88,6 +89,10 @@ sim_pop <- function(N = 200, M = 1000, Fst = 0.1, maf_max = 0.5, maf_min = 0.05,
 ```r
 plot_pop <- function(mod, labs, ...)
 {
+  if(missing(labs)) {
+    labs <- factor(rep("Pop", nrow(mod$vectors)))
+  }
+  
   plot(mod$vectors[, 1], mod$vectors[, 2], type = "n", 
     xlab = "PC1", ylab = "PC2", ...)
   text(mod$vectors[, 1], mod$vectors[, 2], label = labs, col = as.numeric(labs))
@@ -295,8 +300,18 @@ per4_per4      0      1      0      0      0
 ```r
 N <- nrow(bmat)
 
-grm <- bigdat_grm(bmat)
+grm <- bigdat_grm(bmat, num_batches = 2, verbose = 2)
+```
 
+```
+ - bigdat_tcrossprod: computing `tcrossprod`: 2 batches
+ - batch 1 / 2 
+  -- # NAs 0 
+ - batch 2 / 2 
+  -- # NAs 0 
+```
+
+```r
 mod <- eigs(grm, k = 2)
 
 labs <- factor(rep("Dummy Pop", N))
@@ -339,18 +354,19 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] bigcov_0.1.1    RSpectra_0.12-0 BEDMatrix_1.4.0 rmarkdown_1.3  
-[5] knitr_1.15.1    devtools_1.12.0
+[1] bigcov_0.1.1    readr_1.0.0     dplyr_0.5.0     magrittr_1.5   
+[5] RSpectra_0.12-0 BEDMatrix_1.4.0 rmarkdown_1.3   knitr_1.15.1   
+[9] devtools_1.12.0
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.8         bigmemory.sri_0.1.3 magrittr_1.5       
- [4] roxygen2_5.0.1      lattice_0.20-34     R6_2.2.0           
- [7] bigmemory_4.5.19    stringr_1.1.0       plyr_1.8.4         
-[10] dplyr_0.5.0         tools_3.3.3         grid_3.3.3         
-[13] data.table_1.10.0   DBI_0.5-1           withr_1.0.2        
-[16] htmltools_0.3.5     lazyeval_0.2.0      yaml_2.1.14        
-[19] rprojroot_1.1       digest_0.6.10       assertthat_0.1     
-[22] tibble_1.2          crayon_1.3.2        Matrix_1.2-7.1     
+ [1] Rcpp_0.12.8         bigmemory.sri_0.1.3 roxygen2_5.0.1     
+ [4] lattice_0.20-34     R6_2.2.0            bigmemory_4.5.19   
+ [7] stringr_1.1.0       plyr_1.8.4          tcltk_3.3.3        
+[10] tools_3.3.3         grid_3.3.3          data.table_1.10.0  
+[13] DBI_0.5-1           withr_1.0.2         htmltools_0.3.5    
+[16] lazyeval_0.2.0      yaml_2.1.14         rprojroot_1.1      
+[19] digest_0.6.10       assertthat_0.1      tibble_1.2         
+[22] crayon_1.3.2        Matrix_1.2-7.1      codetools_0.2-15   
 [25] testthat_1.0.2      memoise_1.0.0       evaluate_0.10      
 [28] stringi_1.1.2       backports_1.0.4     crochet_1.0.0      
 ```

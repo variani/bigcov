@@ -1,0 +1,130 @@
+---
+title: "Analysis of HapMap data"
+author: "Andrey Ziyatdinov"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: united
+    toc: true
+    keep_md: true
+bibliography: ref.bib    
+---
+
+```{r options, echo = F}
+opts_chunk$set(comment = NA, results = 'markup', tidy = F, message = F, warning = F, echo = T,
+  fig.width = 6, fig.height = 6)
+```
+  
+# Preliminaries
+
+```{r inc}
+library(utils) # for downloads
+library(BEDMatrix) # to read plink data efficiently
+
+library(RSpectra) # to perform PCA with a few components, e.g. 2
+
+library(magrittr) 
+library(dplyr) 
+
+#library(bigcov)
+library(devtools)
+load_all("~/git/variani/bigcov/")
+```
+
+
+## Function to plot PCA
+
+```{r plot_pop}
+plot_pop <- function(mod, labs, ...)
+{
+  plot(mod$vectors[, 1], mod$vectors[, 2], type = "n", 
+    xlab = "PC1", ylab = "PC2", ...)
+  text(mod$vectors[, 1], mod$vectors[, 2], label = labs, col = as.numeric(labs))
+}
+```
+
+
+## Download and extract data 
+
+```{r download, cache = TRUE}
+dir_data <- "data-hapmap" 
+dir.create(dir_data, showWarnings = FALSE)
+
+# description file
+url_pop <- "http://zzz.bwh.harvard.edu/plink/dist/hapmap.pop"
+fn_pop <- basename(url_pop)
+download.file(url_pop, file.path(dir_data, fn_pop))
+
+# genotype file
+url_gen <- "http://zzz.bwh.harvard.edu/plink/dist/hapmap_JPT_CHB_r23a.zip"
+fn_gen <- basename(url_gen)
+download.file(url_gen, file.path(dir_data, fn_gen))
+```
+
+```{r unzip, cache = TRUE, dependson = -1}
+unzip(file.path(dir_data, fn_gen), exdir = dir_data)
+```
+
+```{r list_data}
+list.files(dir_data)
+```
+
+## Read files by BEDMatrix
+
+```{r BEDMatrix}
+bed_gen <- paste0(strsplit(fn_gen, '[.]')[[1]][1], ".bed")
+system.time({
+  bmat <- BEDMatrix(file.path(dir_data, bed_gen))
+})
+```
+
+```{r show_bmat}
+bmat
+
+dim(bmat)
+```
+
+```{r ids}
+ids <- bmat@dnames[[1]]
+head(ids)
+
+ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
+head(ids)
+```
+
+```{r pop}
+pop <- read.table(file.path(dir_data, fn_pop), header = FALSE)
+names(pop) <- c("name", "id", "pop")
+
+pop <- left_join(data_frame(id = ids), pop, by = "id")
+stopifnot(nrow(pop) == length(ids))
+```
+
+# GRM on all markers
+
+```{r grm_all, cache = TRUE}
+system.time({
+  grm <- bigdat_grm(bmat, batch_size = 1e5, verbose = 1)
+})
+```
+
+```{r pca_all}
+mod <- eigs(grm, k = 2)
+
+labs <- pop$pop
+plot_pop(mod, labs, main = "GRM on all markers")
+```
+
+# R session info
+
+```{r session_info}
+sessionInfo()
+```
+
+# License
+
+This document is licensed under the Creative Commons Attribution 4.0 International Public License. 
+
+[![Creative Commons License](http://i.creativecommons.org/l/by/4.0/88x31.png)](http://creativecommons.org/licenses/by/4.0/)
+
+# References

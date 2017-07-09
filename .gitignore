@@ -19,6 +19,8 @@
 
 # produced vignettes
 vignettes/*_files/
+vignettes/*_cache/
+vignettes/data*/
 vignettes/*.html
 vignettes/*.pdf
 
