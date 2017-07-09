@@ -43,8 +43,9 @@ plot_pop <- function(mod, labs, ...)
 }
 ```
 
-
 ## Download and extract data 
+
+http://zzz.bwh.harvard.edu/plink/res.shtml#hapmap
 
 ```{r download, cache = TRUE}
 dir_data <- "data-hapmap" 
