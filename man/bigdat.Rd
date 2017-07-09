@@ -10,3 +10,4 @@ bigdat(x, rows = NULL, num_batches = NULL, batch_size = NULL,
 \description{
 S3 class bigdat.
 }
+

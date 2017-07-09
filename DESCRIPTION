@@ -1,11 +1,12 @@
 Package: bigcov
 Type: Package
-Title: Covariance/Correlation for big data 
+Title: Covariance/Correlation for big data
 Version: 0.1.1
 Date: 2017-03-01
 Author: Andrey Ziyatdinov
 Maintainer: Andrey Ziyatdinov <andrey@example.com>
-Description: Covariance/Correlation for big data. Supposed data structures are from base R: matrices, data.frames, etc.
+Description: Covariance/Correlation for big data. Supposed data structures are
+    from base R: matrices, data.frames, etc.
 License: GPL (>= 3)
 Imports:
     plyr,
@@ -17,7 +18,8 @@ Suggests:
     testthat,
     knitr,
     rmarkdown,
-    pls
+    pls,
+    RSpectra
 Collate:
     'package.R'
     'utils.R'
@@ -27,4 +29,5 @@ Collate:
     'bigcov.R'
     'relmat.R'
     'grm.R'
-RoxygenNote: 6.0.1
+    'jacard.R'
+RoxygenNote: 5.0.1

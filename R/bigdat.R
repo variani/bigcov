@@ -10,6 +10,10 @@
 #' @exportClass bigdatBigMat
 #
 
+#' S3 class bigdatBEDMatrix.
+#' @exportClass bigdatBEDMatrix
+#
+
 #--------------
 # Constructors
 #--------------
@@ -49,7 +53,12 @@ bigdat <- function(x, rows = NULL,
     out$data <- x
     
     oldClass(out) <- c("bigdatBigMat", "bigdat")
-  } else {
+  } else if(out$class == "BEDMatrix") {
+    out$data <- x
+    
+    oldClass(out) <- c("bigdatBEDMatrix", "bigdat")
+  }
+  else {
    stop("not supported class:", out$class)
   }
 
