@@ -34,8 +34,13 @@ plot_pop <- function(mod, labs, ...)
 }
 ```
 
-
 ## Download and extract data 
+
+http://zzz.bwh.harvard.edu/plink/res.shtml#hapmap
+
+>The HapMap genotype data (the latest is release 23) are available here as PLINK binary filesets. The SNPs are currently coded according NCBI build 36 coordinates on the forward strand. Several versions are available here: the entire dataset (a single, very large fileset: you will need a computer with at least 2Gb of RAM to load this file).
+>
+>The filtered SNP set refers to a list of SNPs that have MAF greater than 0.01 and genotyping rate greater than 0.95 in the 60 CEU founders. This fileset is probably a good starting place for imputation in samples of European descent. Filtered versions of the other HapMap panels will be made available shortly.
 
 
 ```r
@@ -69,6 +74,7 @@ list.files(dir_data)
 [5] "hapmap.pop"             
 ```
 
+
 ## Read files by BEDMatrix
 
 
@@ -81,7 +87,7 @@ system.time({
 
 ```
    user  system elapsed 
-  6.348   0.128   8.872 
+  3.651   0.049   3.701 
 ```
 
 
@@ -130,6 +136,17 @@ pop <- left_join(data_frame(id = ids), pop, by = "id")
 stopifnot(nrow(pop) == length(ids))
 ```
 
+## Summary on data set 
+
+| Characteristic | Value |
+|--|--|
+| File | `hapmap_JPT_CHB_r23a.zip` |
+| Description | [JPT+CHB (release 23, 90 individuals, 3.99 million SNPs)](http://zzz.bwh.harvard.edu/plink/res.shtml#hapmap) |
+| Orignial file | `hapmap_JPT_CHB_r23a.bed` |
+| File format in R | `BEDMatrix` |
+| Number of individuals | 90 |
+| Number of markers | 3,998,895 |
+
 # GRM on all markers
 
 
@@ -145,7 +162,7 @@ system.time({
 
 ```
    user  system elapsed 
-172.336   5.436 179.352 
+ 39.437   2.789  41.646 
 ```
 
 
@@ -158,6 +175,101 @@ plot_pop(mod, labs, main = "GRM on all markers")
 
 ![](hapmap_files/figure-html/pca_all-1.png)<!-- -->
 
+# GRM on common markers (> 5%)
+
+
+```r
+system.time({
+  grm <- bigdat_grm(bmat, batch_size = 1e5, maf_min = 0.05, verbose = 1)
+})
+```
+
+```
+ - bigdat_tcrossprod: computing `tcrossprod`: 40 batches
+```
+
+```
+   user  system elapsed 
+ 24.154   2.754  26.414 
+```
+
+
+```r
+mod <- eigs(grm, k = 2)
+
+labs <- pop$pop
+plot_pop(mod, labs, main = "GRM on common markers")
+```
+
+![](hapmap_files/figure-html/pca_common-1.png)<!-- -->
+
+# Jacard on rare markers (<5%)
+
+The genotype data does not have enough rare variants, e.g. < 1%.
+Thus, the Jacard matrix is the identity matrix
+if the analysis is run on genotypes with MAF below 1%.
+
+
+```r
+system.time({
+  grm <- bigdat_grm(bmat, "Jacard", batch_size = 1e5, maf_max = 0.05, verbose = 1) 
+})
+```
+
+```
+ - bigdat_tcrossprod: computing `tcrossprod`: 40 batches
+ - clean markers used in the analysis: 454802 / 3998895 
+```
+
+```
+   user  system elapsed 
+ 12.696   1.489  14.186 
+```
+
+
+
+```r
+mod <- eigs(grm, k = 2)
+
+labs <- pop$pop
+plot_pop(mod, labs, main = "Jacard on rare markers")
+```
+
+![](hapmap_files/figure-html/pca_jacard_rare-1.png)<!-- -->
+
+
+# GRM on rare markers (<5%)
+
+
+```r
+system.time({
+  grm <- bigdat_grm(bmat, batch_size = 1e5, maf_max = 0.05, verbose = 1) 
+})
+```
+
+```
+ - bigdat_tcrossprod: computing `tcrossprod`: 40 batches
+ - clean markers used in the analysis: 454802 / 3998895 
+```
+
+```
+   user  system elapsed 
+ 12.478   1.548  13.910 
+```
+
+
+
+```r
+mod <- eigs(grm, k = 2)
+
+labs <- pop$pop
+plot_pop(mod, labs, main = "GRM on rare markers")
+```
+
+![](hapmap_files/figure-html/pca_grm_rare-1.png)<!-- -->
+
+
+  
 # R session info
 
 
@@ -166,43 +278,42 @@ sessionInfo()
 ```
 
 ```
-R version 3.3.3 (2017-03-06)
-Platform: i686-pc-linux-gnu (32-bit)
-Running under: Ubuntu 14.04.5 LTS
+R version 3.4.0 (2017-04-21)
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Running under: OS X El Capitan 10.11.6
+
+Matrix products: default
+BLAS: /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+LAPACK: /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLAPACK.dylib
 
 locale:
- [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
- [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
- [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
- [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
- [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
 
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] bigcov_0.1.1    readr_1.0.0     dplyr_0.5.0     magrittr_1.5   
-[5] RSpectra_0.12-0 BEDMatrix_1.4.0 rmarkdown_1.3   knitr_1.15.1   
-[9] devtools_1.12.0
+[1] bigcov_0.1.1    dplyr_0.5.0     magrittr_1.5    RSpectra_0.12-0
+[5] BEDMatrix_1.4.0 rmarkdown_1.5   knitr_1.15.1    devtools_1.13.1
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.8         bigmemory.sri_0.1.3 roxygen2_5.0.1     
- [4] lattice_0.20-34     R6_2.2.0            bigmemory_4.5.19   
- [7] stringr_1.1.0       plyr_1.8.4          tcltk_3.3.3        
-[10] tools_3.3.3         grid_3.3.3          data.table_1.10.0  
-[13] DBI_0.5-1           withr_1.0.2         htmltools_0.3.5    
-[16] lazyeval_0.2.0      yaml_2.1.14         rprojroot_1.1      
-[19] digest_0.6.10       assertthat_0.1      tibble_1.2         
-[22] crayon_1.3.2        Matrix_1.2-7.1      codetools_0.2-15   
-[25] testthat_1.0.2      memoise_1.0.0       evaluate_0.10      
-[28] stringi_1.1.2       backports_1.0.4     crochet_1.0.0      
+ [1] Rcpp_0.12.10          bigmemory.sri_0.1.3   xml2_1.1.1           
+ [4] roxygen2_6.0.1        lattice_0.20-35       R6_2.2.1             
+ [7] synchronicity_1.1.9.1 bigmemory_4.5.19      plyr_1.8.4           
+[10] stringr_1.2.0         tools_3.4.0           grid_3.4.0           
+[13] data.table_1.10.4     DBI_0.6-1             withr_1.0.2          
+[16] htmltools_0.3.6       commonmark_1.2        lazyeval_0.2.0       
+[19] yaml_2.1.14           rprojroot_1.2         digest_0.6.12        
+[22] assertthat_0.2.0      tibble_1.3.0          crayon_1.3.2         
+[25] Matrix_1.2-9          codetools_0.2-15      testthat_1.0.2       
+[28] memoise_1.1.0         evaluate_0.10         stringi_1.1.5        
+[31] compiler_3.4.0        backports_1.0.5       crochet_1.0.0        
 ```
 
 # License
 
 This document is licensed under the Creative Commons Attribution 4.0 International Public License. 
 
-![Creative Commons License](http://creativecommons.org/licenses/by/4.0/)
+[![Creative Commons License](http://i.creativecommons.org/l/by/4.0/88x31.png)](http://creativecommons.org/licenses/by/4.0/)
 
 # References

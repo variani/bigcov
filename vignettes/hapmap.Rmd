@@ -47,6 +47,10 @@ plot_pop <- function(mod, labs, ...)
 
 http://zzz.bwh.harvard.edu/plink/res.shtml#hapmap
 
+>The HapMap genotype data (the latest is release 23) are available here as PLINK binary filesets. The SNPs are currently coded according NCBI build 36 coordinates on the forward strand. Several versions are available here: the entire dataset (a single, very large fileset: you will need a computer with at least 2Gb of RAM to load this file).
+>
+>The filtered SNP set refers to a list of SNPs that have MAF greater than 0.01 and genotyping rate greater than 0.95 in the 60 CEU founders. This fileset is probably a good starting place for imputation in samples of European descent. Filtered versions of the other HapMap panels will be made available shortly.
+
 ```{r download, cache = TRUE}
 dir_data <- "data-hapmap" 
 dir.create(dir_data, showWarnings = FALSE)
@@ -70,6 +74,7 @@ unzip(file.path(dir_data, fn_gen), exdir = dir_data)
 list.files(dir_data)
 ```
 
+
 ## Read files by BEDMatrix
 
 ```{r BEDMatrix}
@@ -84,6 +89,8 @@ bmat
 
 dim(bmat)
 ```
+
+### Extract IDs of individuals
 
 ```{r ids}
 ids <- bmat@dnames[[1]]
@@ -101,6 +108,17 @@ pop <- left_join(data_frame(id = ids), pop, by = "id")
 stopifnot(nrow(pop) == length(ids))
 ```
 
+## Summary on data set 
+
+| Characteristic | Value |
+|--|--|
+| File | ``r fn_gen`` |
+| Description | [JPT+CHB (release 23, 90 individuals, 3.99 million SNPs)](http://zzz.bwh.harvard.edu/plink/res.shtml#hapmap) |
+| Orignial file | ``r bed_gen`` |
+| File format in R | ``r class(bmat)`` |
+| Number of individuals | `r nrow(bmat)` |
+| Number of markers | `r ncol(bmat) %>% format(big.mark = ",")` |
+
 # GRM on all markers
 
 ```{r grm_all, cache = TRUE}
@@ -109,13 +127,67 @@ system.time({
 })
 ```
 
-```{r pca_all}
+```{r pca_all, cache = TRUE, dependson = -1}
 mod <- eigs(grm, k = 2)
 
 labs <- pop$pop
 plot_pop(mod, labs, main = "GRM on all markers")
 ```
 
+# GRM on common markers (> 5%)
+
+```{r grm_common, cache = TRUE}
+system.time({
+  grm <- bigdat_grm(bmat, batch_size = 1e5, maf_min = 0.05, verbose = 1)
+})
+```
+
+```{r pca_common, cache = TRUE, dependson = -1}
+mod <- eigs(grm, k = 2)
+
+labs <- pop$pop
+plot_pop(mod, labs, main = "GRM on common markers")
+```
+
+# Jacard on rare markers (<5%)
+
+The genotype data does not have enough rare variants, e.g. < 1%.
+Thus, the Jacard matrix is the identity matrix
+if the analysis is run on genotypes with MAF below 1%.
+
+```{r jacard_rare, cache = TRUE}
+system.time({
+  grm <- bigdat_grm(bmat, "Jacard", batch_size = 1e5, maf_max = 0.05, verbose = 1) 
+})
+```
+
+
+```{r pca_jacard_rare, cache = TRUE, dependson = -1}
+mod <- eigs(grm, k = 2)
+
+labs <- pop$pop
+plot_pop(mod, labs, main = "Jacard on rare markers")
+```
+
+
+# GRM on rare markers (<5%)
+
+```{r grm_rare, cache = TRUE}
+system.time({
+  grm <- bigdat_grm(bmat, batch_size = 1e5, maf_max = 0.05, verbose = 1) 
+})
+```
+
+
+```{r pca_grm_rare, cache = TRUE, dependson = -1}
+mod <- eigs(grm, k = 2)
+
+labs <- pop$pop
+plot_pop(mod, labs, main = "GRM on rare markers")
+```
+
+
+  
 # R session info
 
 ```{r session_info}
