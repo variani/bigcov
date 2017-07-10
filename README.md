@@ -10,6 +10,13 @@ Covariance/Correlation for big data
     - [Population stratification using GRM and Jacard](https://variani.github.io/bigcov/vignettes/popstrat.html) 
     - [Analysis of HapMap data](https://variani.github.io/bigcov/vignettes/hapmap.html) 
 
+## Installation
+
+```
+library(devtools)
+install_github("variani/bigcov")
+```
+
 ## Code examples
 
 ```
