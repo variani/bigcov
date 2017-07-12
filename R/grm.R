@@ -133,9 +133,9 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
       mat <- sweep(mat, 2, col_sd , "/")
     
       # write result into `product`
-      product_batch <- tcrossprod(mat)
+      #product_batch <- tcrossprod(mat)
       lock(mutex_product)
-      product[, ] <- product[, ]# + tcrossprod(mat)
+      product[, ] <- product[, ] + tcrossprod(mat)
       unlock(mutex_product)
     } else if(grm %in% "Jacard") {
        if(check_na) {
