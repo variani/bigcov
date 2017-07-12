@@ -364,8 +364,8 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] bigcov_0.1.1    RSpectra_0.12-0 BEDMatrix_1.4.0 rmarkdown_1.5  
-[5] knitr_1.15.1    devtools_1.13.1
+[1] bigcov_0.1.1    dplyr_0.5.0     magrittr_1.5    RSpectra_0.12-0
+[5] BEDMatrix_1.4.0 rmarkdown_1.5   knitr_1.15.1    devtools_1.13.1
 
 loaded via a namespace (and not attached):
  [1] Rcpp_0.12.10          compiler_3.4.0        plyr_1.8.4           
@@ -374,13 +374,13 @@ loaded via a namespace (and not attached):
 [10] memoise_1.1.0         tibble_1.3.0          lattice_0.20-35      
 [13] Matrix_1.2-9          foreach_1.4.3         DBI_0.6-1            
 [16] synchronicity_1.1.9.1 commonmark_1.2        yaml_2.1.14          
-[19] parallel_3.4.0        withr_1.0.2           dplyr_0.5.0          
-[22] stringr_1.2.0         roxygen2_6.0.1        xml2_1.1.1           
-[25] rprojroot_1.2         grid_3.4.0            data.table_1.10.4    
-[28] R6_2.2.1              bigmemory_4.5.19      bigmemory.sri_0.1.3  
-[31] magrittr_1.5          backports_1.0.5       codetools_0.2-15     
-[34] htmltools_0.3.6       assertthat_0.2.0      stringi_1.1.5        
-[37] lazyeval_0.2.0        doParallel_1.0.10     crayon_1.3.2         
+[19] parallel_3.4.0        withr_1.0.2           stringr_1.2.0        
+[22] roxygen2_6.0.1        xml2_1.1.1            rprojroot_1.2        
+[25] grid_3.4.0            data.table_1.10.4     R6_2.2.1             
+[28] bigmemory_4.5.19      bigmemory.sri_0.1.3   backports_1.0.5      
+[31] codetools_0.2-15      htmltools_0.3.6       assertthat_0.2.0     
+[34] stringi_1.1.5         lazyeval_0.2.0        doParallel_1.0.10    
+[37] crayon_1.3.2         
 ```
 
 # License
