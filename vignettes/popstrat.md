@@ -122,9 +122,12 @@ A <- bigdat_grm(gdat, check_na = FALSE, num_batches = 2, verbose = 2)
 ```
  - bigdat_tcrossprod: computing `tcrossprod`: 2 batches
  - batch 1 / 2 
-  -- # NAs 0 
+  -- filters: mono /  /  /  
+  -- clean markers ready for the analysis: 500 / 500 
  - batch 2 / 2 
-  -- # NAs 0 
+  -- filters: mono /  /  /  
+  -- clean markers ready for the analysis: 500 / 500 
+ - clean markers used in the analysis: 1000 / 1000 
 ```
 
 ```r
@@ -154,11 +157,14 @@ A <- bigdat_grm(gdat, check_na = FALSE, num_batches = 2, verbose = 2)
 ```
  - bigdat_tcrossprod: computing `tcrossprod`: 2 batches
  - batch 1 / 2 
-  -- filtered mono. markers: 206 
-  -- # NAs 0 
+  -- filters: mono /  /  /  
+   --- filtered mono. markers: 206 / 500 
+  -- clean markers ready for the analysis: 294 / 500 
  - batch 2 / 2 
-  -- filtered mono. markers: 211 
-  -- # NAs 0 
+  -- filters: mono /  /  /  
+   --- filtered mono. markers: 211 / 500 
+  -- clean markers ready for the analysis: 289 / 500 
+ - clean markers used in the analysis: 583 / 1000 
 ```
 
 ```r
@@ -272,7 +278,7 @@ bmat
 ```
 
 ```
-BEDMatrix: 50 x 1000 [/home/andrey/R/i686-pc-linux-gnu-library/3.3/BEDMatrix/extdata/example.bed]
+BEDMatrix: 50 x 1000 [/usr/local/Cellar/r/3.4.0_1/R.framework/Versions/3.4/Resources/library/BEDMatrix/extdata/example.bed]
 ```
 
 ```r
@@ -306,9 +312,14 @@ grm <- bigdat_grm(bmat, num_batches = 2, verbose = 2)
 ```
  - bigdat_tcrossprod: computing `tcrossprod`: 2 batches
  - batch 1 / 2 
+  -- filters: mono /  /  / check_na 
+  -- clean markers ready for the analysis: 500 / 500 
   -- # NAs 0 
  - batch 2 / 2 
+  -- filters: mono /  /  / check_na 
+  -- clean markers ready for the analysis: 500 / 500 
   -- # NAs 0 
+ - clean markers used in the analysis: 1000 / 1000 
 ```
 
 ```r
@@ -338,37 +349,38 @@ sessionInfo()
 ```
 
 ```
-R version 3.3.3 (2017-03-06)
-Platform: i686-pc-linux-gnu (32-bit)
-Running under: Ubuntu 14.04.5 LTS
+R version 3.4.0 (2017-04-21)
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Running under: OS X El Capitan 10.11.6
+
+Matrix products: default
+BLAS: /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+LAPACK: /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLAPACK.dylib
 
 locale:
- [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
- [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
- [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
- [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
- [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
 
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] bigcov_0.1.1    readr_1.0.0     dplyr_0.5.0     magrittr_1.5   
-[5] RSpectra_0.12-0 BEDMatrix_1.4.0 rmarkdown_1.3   knitr_1.15.1   
-[9] devtools_1.12.0
+[1] bigcov_0.1.1    RSpectra_0.12-0 BEDMatrix_1.4.0 rmarkdown_1.5  
+[5] knitr_1.15.1    devtools_1.13.1
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.8         bigmemory.sri_0.1.3 roxygen2_5.0.1     
- [4] lattice_0.20-34     R6_2.2.0            bigmemory_4.5.19   
- [7] stringr_1.1.0       plyr_1.8.4          tcltk_3.3.3        
-[10] tools_3.3.3         grid_3.3.3          data.table_1.10.0  
-[13] DBI_0.5-1           withr_1.0.2         htmltools_0.3.5    
-[16] lazyeval_0.2.0      yaml_2.1.14         rprojroot_1.1      
-[19] digest_0.6.10       assertthat_0.1      tibble_1.2         
-[22] crayon_1.3.2        Matrix_1.2-7.1      codetools_0.2-15   
-[25] testthat_1.0.2      memoise_1.0.0       evaluate_0.10      
-[28] stringi_1.1.2       backports_1.0.4     crochet_1.0.0      
+ [1] Rcpp_0.12.10          compiler_3.4.0        plyr_1.8.4           
+ [4] iterators_1.0.8       tools_3.4.0           crochet_1.0.0        
+ [7] testthat_1.0.2        digest_0.6.12         evaluate_0.10        
+[10] memoise_1.1.0         tibble_1.3.0          lattice_0.20-35      
+[13] Matrix_1.2-9          foreach_1.4.3         DBI_0.6-1            
+[16] synchronicity_1.1.9.1 commonmark_1.2        yaml_2.1.14          
+[19] parallel_3.4.0        withr_1.0.2           dplyr_0.5.0          
+[22] stringr_1.2.0         roxygen2_6.0.1        xml2_1.1.1           
+[25] rprojroot_1.2         grid_3.4.0            data.table_1.10.4    
+[28] R6_2.2.1              bigmemory_4.5.19      bigmemory.sri_0.1.3  
+[31] magrittr_1.5          backports_1.0.5       codetools_0.2-15     
+[34] htmltools_0.3.6       assertthat_0.2.0      stringi_1.1.5        
+[37] lazyeval_0.2.0        doParallel_1.0.10     crayon_1.3.2         
 ```
 
 # License

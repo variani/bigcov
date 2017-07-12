@@ -8,6 +8,7 @@
 #' @import BEDMatrix
 #'
 #' @importFrom synchronicity boost.mutex lock unlock
+#' @importFrom doParallel registerDoParallel stopImplicitCluster
 #' @importFrom plyr llply l_ply
 #' @importFrom dplyr data_frame bind_rows mutate select everything filter
 #' @importFrom magrittr %>%

@@ -87,7 +87,7 @@ system.time({
 
 ```
    user  system elapsed 
-  3.651   0.049   3.701 
+ 11.062   0.249  15.767 
 ```
 
 
@@ -106,6 +106,8 @@ dim(bmat)
 ```
 [1]      90 3998895
 ```
+
+### Extract IDs of individuals
 
 
 ```r
@@ -158,11 +160,12 @@ system.time({
 
 ```
  - bigdat_tcrossprod: computing `tcrossprod`: 40 batches
+ - clean markers used in the analysis: 2573397 / 3998895 
 ```
 
 ```
    user  system elapsed 
- 39.437   2.789  41.646 
+ 39.069   2.817  42.029 
 ```
 
 
@@ -186,11 +189,12 @@ system.time({
 
 ```
  - bigdat_tcrossprod: computing `tcrossprod`: 40 batches
+ - clean markers used in the analysis: 2133712 / 3998895 
 ```
 
 ```
    user  system elapsed 
- 24.154   2.754  26.414 
+ 27.435   2.696  29.666 
 ```
 
 
@@ -223,7 +227,7 @@ system.time({
 
 ```
    user  system elapsed 
- 12.696   1.489  14.186 
+ 13.057   1.494  14.561 
 ```
 
 
@@ -254,7 +258,7 @@ system.time({
 
 ```
    user  system elapsed 
- 12.478   1.548  13.910 
+ 12.984   1.533  14.413 
 ```
 
 
@@ -268,7 +272,17 @@ plot_pop(mod, labs, main = "GRM on rare markers")
 
 ![](hapmap_files/figure-html/pca_grm_rare-1.png)<!-- -->
 
+# Parallel computing 
 
+We compute the previous example on a single or two CPUs.
+The following code does not work on Mac with BLAS supporting multi threading.
+
+
+```r
+system.time(bigdat_grm(bmat, batch_size = 1e5, maf_max = 0.05))
+
+system.time(bigdat_grm(bmat, batch_size = 1e5, maf_max = 0.05, cores = 2))
+```
   
 # R session info
 
@@ -297,17 +311,19 @@ other attached packages:
 [5] BEDMatrix_1.4.0 rmarkdown_1.5   knitr_1.15.1    devtools_1.13.1
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.10          bigmemory.sri_0.1.3   xml2_1.1.1           
- [4] roxygen2_6.0.1        lattice_0.20-35       R6_2.2.1             
- [7] synchronicity_1.1.9.1 bigmemory_4.5.19      plyr_1.8.4           
-[10] stringr_1.2.0         tools_3.4.0           grid_3.4.0           
-[13] data.table_1.10.4     DBI_0.6-1             withr_1.0.2          
-[16] htmltools_0.3.6       commonmark_1.2        lazyeval_0.2.0       
-[19] yaml_2.1.14           rprojroot_1.2         digest_0.6.12        
-[22] assertthat_0.2.0      tibble_1.3.0          crayon_1.3.2         
-[25] Matrix_1.2-9          codetools_0.2-15      testthat_1.0.2       
-[28] memoise_1.1.0         evaluate_0.10         stringi_1.1.5        
-[31] compiler_3.4.0        backports_1.0.5       crochet_1.0.0        
+ [1] Rcpp_0.12.10          compiler_3.4.0        plyr_1.8.4           
+ [4] iterators_1.0.8       tools_3.4.0           crochet_1.0.0        
+ [7] testthat_1.0.2        digest_0.6.12         evaluate_0.10        
+[10] memoise_1.1.0         tibble_1.3.0          lattice_0.20-35      
+[13] Matrix_1.2-9          foreach_1.4.3         DBI_0.6-1            
+[16] synchronicity_1.1.9.1 commonmark_1.2        yaml_2.1.14          
+[19] parallel_3.4.0        withr_1.0.2           stringr_1.2.0        
+[22] roxygen2_6.0.1        xml2_1.1.1            rprojroot_1.2        
+[25] grid_3.4.0            data.table_1.10.4     R6_2.2.1             
+[28] bigmemory_4.5.19      bigmemory.sri_0.1.3   backports_1.0.5      
+[31] codetools_0.2-15      htmltools_0.3.6       assertthat_0.2.0     
+[34] stringi_1.1.5         lazyeval_0.2.0        doParallel_1.0.10    
+[37] crayon_1.3.2         
 ```
 
 # License

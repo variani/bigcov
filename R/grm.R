@@ -4,7 +4,7 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
   num_batches = NULL, batch_size = NULL,
   check_na = TRUE, filter_mono = TRUE, maf_min = NULL, maf_max = NULL,
   sparse = TRUE, 
-  verbose = 0,
+  cores = 1, verbose = 0,
   ids, ...)
 {
   # GRM as given in Patterson 2006, formulas (1)-(3)
@@ -13,6 +13,8 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
   grm <- match.arg(grm)
   
   ### vars
+  parallel <- (cores > 1)
+
   filter_maf_min <- !is.null(maf_min)
   filter_maf_max <- !is.null(maf_max)
   filter_maf <- filter_maf_min | filter_maf_max
@@ -33,6 +35,10 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
   product <- big.matrix(nrow = N, ncol = N, init = 0.0, type = 'double')
   mutex_product <- boost.mutex()
 
+  if(parallel) {
+    registerDoParallel(cores = cores)
+  }
+  
   out <- llply(seq(1, num_batches), function(i) {
     if(verbose > 1) {
       cat(" - batch", i, "/", num_batches, "\n")
@@ -127,8 +133,9 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
       mat <- sweep(mat, 2, col_sd , "/")
     
       # write result into `product`
+      product_batch <- tcrossprod(mat)
       lock(mutex_product)
-      product[, ] <- product[, ] + tcrossprod(mat)
+      product[, ] <- product[, ]# + tcrossprod(mat)
       unlock(mutex_product)
     } else if(grm %in% "Jacard") {
        if(check_na) {
@@ -166,7 +173,12 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
     list(batch = i, 
       num_markers = num_markers, num_markers_clean = num_markers_clean,
       row_sums = row_sums)
-  })
+  }, .parallel = parallel)
+  
+  if(parallel) {
+    ret <- stopImplicitCluster()
+  }
+  
   ### extract statistics from batches
   num_markers <- sapply(out, function(x) x$num_markers) %>% sum
   num_markers_clean <- sapply(out, function(x) x$num_markers_clean) %>% sum  

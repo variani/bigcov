@@ -15,13 +15,16 @@ Imports:
     Matrix,
     bigmemory,
     synchronicity,
-    BEDMatrix
+    BEDMatrix,
+    doParallel
 Suggests:
     testthat,
     knitr,
     rmarkdown,
     pls,
-    RSpectra
+    RSpectra,
+    parallel,
+    iterators
 Collate:
     'package.R'
     'utils.R'

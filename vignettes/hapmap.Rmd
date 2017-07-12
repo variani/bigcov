@@ -186,7 +186,16 @@ labs <- pop$pop
 plot_pop(mod, labs, main = "GRM on rare markers")
 ```
 
+# Parallel computing 
 
+We compute the previous example on a single or two CPUs.
+The following code does not work on Mac with BLAS supporting multi threading.
+
+```{r par, eval = F}
+system.time(bigdat_grm(bmat, batch_size = 1e5, maf_max = 0.05))
+
+system.time(bigdat_grm(bmat, batch_size = 1e5, maf_max = 0.05, cores = 2))
+```
   
 # R session info
 
