@@ -1,0 +1,172 @@
+---
+title: "Analysis of 1K Genome data"
+author: "Andrey Ziyatdinov"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: united
+    toc: true
+    keep_md: true
+bibliography: ref.bib    
+---
+
+```{r options, echo = F}
+opts_chunk$set(comment = NA, results = 'markup', tidy = F, message = F, warning = F, echo = T,
+  fig.width = 6, fig.height = 6)
+```
+  
+# Preliminaries
+
+```{r inc}
+library(utils) # for downloads
+library(BEDMatrix) # to read plink data efficiently
+
+library(RSpectra) # to perform PCA with a few components, e.g. 2
+
+library(magrittr) 
+library(dplyr) 
+
+#library(bigcov)
+library(devtools)
+load_all("~/git/variani/bigcov/")
+```
+
+
+## Function to plot PCA
+
+```{r plot_pop}
+plot_pop <- function(mod, labs, ...)
+{
+  plot(mod$vectors[, 1], mod$vectors[, 2], type = "n", 
+    xlab = "PC1", ylab = "PC2", ...)
+  text(mod$vectors[, 1], mod$vectors[, 2], label = labs, col = as.numeric(labs))
+}
+```
+
+# GRM on a subset of common variants
+
+```{r com, cache = TRUE}
+f <- "~/Data/1KGenome/phase3_common_EUR503_pruned_100ksubset_bed.bed"
+bmat <- BEDMatrix(f)
+
+bmat
+dim(bmat)
+
+ids <- rownames(bmat)
+ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
+head(ids)
+
+pop <- read.table("~/Data/1KGenome/pop_label_phase3_2504_without_rels", 
+    header = TRUE, stringsAsFactors = FALSE) %>%
+  mutate(pop = factor(pop)) %>% 
+  left_join(data_frame(sample = ids), ., by = "sample")
+
+system.time({
+  grm <- bigdat_grm(bmat, batch_size = 1e4, verbose = 1)
+})
+
+mod <- eigs(grm, k = 2)
+
+labs <- pop$pop
+plot_pop(mod, labs, main = "GRM on common markers")
+```  
+
+# GRM on a subset of rare variants
+
+```{r rare, cache = TRUE}
+f <- "~/Data/1KGenome/phase3_rare_EUR503_nosingle_100ksubset_bed.bed"
+bmat <- BEDMatrix(f)
+
+bmat
+dim(bmat)
+
+ids <- rownames(bmat)
+ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
+head(ids)
+
+pop <- read.table("~/Data/1KGenome/pop_label_phase3_2504_without_rels", 
+    header = TRUE, stringsAsFactors = FALSE) %>%
+  mutate(pop = factor(pop)) %>% 
+  left_join(data_frame(sample = ids), ., by = "sample")
+
+system.time({
+  grm <- bigdat_grm(bmat, batch_size = 1e4, verbose = 1)
+})
+
+mod <- eigs(grm, k = 2)
+
+labs <- pop$pop
+plot_pop(mod, labs, main = "GRM on common markers")
+``` 
+
+# Jacard on a subset of rare variants 
+
+```{r rare_jacard, cache = TRUE}
+f <- "~/Data/1KGenome/phase3_rare_EUR503_nosingle_100ksubset_bed.bed"
+bmat <- BEDMatrix(f)
+
+bmat
+dim(bmat)
+
+ids <- rownames(bmat)
+ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
+head(ids)
+
+pop <- read.table("~/Data/1KGenome/pop_label_phase3_2504_without_rels", 
+    header = TRUE, stringsAsFactors = FALSE) %>%
+  mutate(pop = factor(pop)) %>% 
+  left_join(data_frame(sample = ids), ., by = "sample")
+
+system.time({
+  grm <- bigdat_grm(bmat, "Jacard", batch_size = 1e4, verbose = 1)
+})
+
+mod <- eigs(grm, k = 2)
+
+labs <- pop$pop
+plot_pop(mod, labs, main = "GRM on common markers")
+``` 
+
+
+# Jacard on a subset of rare variants (<0.5%)
+
+```{r rare_jacard2, cache = TRUE}
+f <- "~/Data/1KGenome/phase3_rare_EUR503_nosingle_100ksubset_bed.bed"
+bmat <- BEDMatrix(f)
+
+bmat
+dim(bmat)
+
+ids <- rownames(bmat)
+ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
+head(ids)
+
+pop <- read.table("~/Data/1KGenome/pop_label_phase3_2504_without_rels", 
+    header = TRUE, stringsAsFactors = FALSE) %>%
+  mutate(pop = factor(pop)) %>% 
+  left_join(data_frame(sample = ids), ., by = "sample")
+
+system.time({
+  grm <- bigdat_grm(bmat, "Jacard", batch_size = 1e4, maf_max = 5e-3, verbose = 1)
+})
+
+mod <- eigs(grm, k = 2)
+
+labs <- pop$pop
+plot_pop(mod, labs, main = "Jacard on rare markers (<0.05%)")
+``` 
+
+
+# R session info
+
+```{r session_info}
+sessionInfo()
+```
+
+# License
+
+This document is licensed under the Creative Commons Attribution 4.0 International Public License. 
+
+[Creative Commons License](http://creativecommons.org/licenses/by/4.0/)
+
+# References
