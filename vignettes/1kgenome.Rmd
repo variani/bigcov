@@ -28,7 +28,8 @@ library(dplyr)
 
 #library(bigcov)
 library(devtools)
-load_all("~/git/variani/bigcov/")
+#load_all("~/git/variani/bigcov/")
+load_all()
 ```
 
 
@@ -46,7 +47,7 @@ plot_pop <- function(mod, labs, ...)
 # GRM on a subset of common variants
 
 ```{r com, cache = TRUE}
-f <- "~/Data/1KGenome/phase3_common_EUR503_pruned_100ksubset_bed.bed"
+f <- "/udd/redpr/mixed_model/1kG/phase3_common_EUR503_pruned_100ksubset_bed.bed"
 bmat <- BEDMatrix(f)
 
 bmat
@@ -56,7 +57,7 @@ ids <- rownames(bmat)
 ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
 head(ids)
 
-pop <- read.table("~/Data/1KGenome/pop_label_phase3_2504_without_rels", 
+pop <- read.table("/udd/redpr/mixed_model/1kG/pop_label_phase3_2504_without_rels", 
     header = TRUE, stringsAsFactors = FALSE) %>%
   mutate(pop = factor(pop)) %>% 
   left_join(data_frame(sample = ids), ., by = "sample")
@@ -66,15 +67,19 @@ system.time({
 })
 
 mod <- eigs(grm, k = 2)
+mod2<-prcomp(grm)
+names(mod2)[2]<-'vectors'
 
 labs <- pop$pop
-plot_pop(mod, labs, main = "GRM on a pre-selected subset of common markers")
+par(mfrow=c(1, 2))
+plot_pop(mod, labs, main = "GRM on common markers, using eigs")
+plot_pop(mod2,labs,main='GRM on common markers, using base::prcomp')
 ```  
 
 # GRM on a subset of rare variants
 
 ```{r rare, cache = TRUE}
-f <- "~/Data/1KGenome/phase3_rare_EUR503_nosingle_100ksubset_bed.bed"
+f <- "/udd/redpr/mixed_model/1kG/phase3_rare_EUR503_nosingle_100ksubset_bed.bed"
 bmat <- BEDMatrix(f)
 
 bmat
@@ -84,7 +89,7 @@ ids <- rownames(bmat)
 ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
 head(ids)
 
-pop <- read.table("~/Data/1KGenome/pop_label_phase3_2504_without_rels", 
+pop <- read.table("/udd/redpr/mixed_model/1kG/pop_label_phase3_2504_without_rels", 
     header = TRUE, stringsAsFactors = FALSE) %>%
   mutate(pop = factor(pop)) %>% 
   left_join(data_frame(sample = ids), ., by = "sample")
@@ -94,15 +99,19 @@ system.time({
 })
 
 mod <- eigs(grm, k = 2)
+mod2<-prcomp(grm)
+names(mod2)[2]<-'vectors'
 
 labs <- pop$pop
-plot_pop(mod, labs, main = "GRM on a pre-selected subset of rare markers")
+par(mfrow=c(1, 2))
+plot_pop(mod, labs, main = "GRM on rare markers, using eigs")
+plot_pop(mod2,labs,main='GRM on rare markers, using base::prcomp')
 ``` 
 
 # Jacard on a subset of rare variants 
 
 ```{r rare_jacard, cache = TRUE}
-f <- "~/Data/1KGenome/phase3_rare_EUR503_nosingle_100ksubset_bed.bed"
+f <- "/udd/redpr/mixed_model/1kG/phase3_rare_EUR503_nosingle_100ksubset_bed.bed"
 bmat <- BEDMatrix(f)
 
 bmat
@@ -112,7 +121,7 @@ ids <- rownames(bmat)
 ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
 head(ids)
 
-pop <- read.table("~/Data/1KGenome/pop_label_phase3_2504_without_rels", 
+pop <- read.table("/udd/redpr/mixed_model/1kG/pop_label_phase3_2504_without_rels", 
     header = TRUE, stringsAsFactors = FALSE) %>%
   mutate(pop = factor(pop)) %>% 
   left_join(data_frame(sample = ids), ., by = "sample")
@@ -122,16 +131,20 @@ system.time({
 })
 
 mod <- eigs(grm, k = 2)
+mod2<-prcomp(grm)
+names(mod2)[2]<-'vectors'
 
 labs <- pop$pop
-plot_pop(mod, labs, main = "GRM on a pre-selected subset of rare markers")
+par(mfrow=c(1, 2))
+plot_pop(mod, labs, main = "JAC on rare markers, using eigs")
+plot_pop(mod2,labs,main='JAC on rare markers, using base::prcomp')
 ``` 
 
 
 # Jacard on a subset of rare variants (<0.5%)
 
 ```{r rare_jacard2, cache = TRUE}
-f <- "~/Data/1KGenome/phase3_rare_EUR503_nosingle_100ksubset_bed.bed"
+f <- "/udd/redpr/mixed_model/1kG/phase3_rare_EUR503_nosingle_100ksubset_bed.bed"
 bmat <- BEDMatrix(f)
 
 bmat
@@ -141,7 +154,7 @@ ids <- rownames(bmat)
 ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
 head(ids)
 
-pop <- read.table("~/Data/1KGenome/pop_label_phase3_2504_without_rels", 
+pop <- read.table("/udd/redpr/mixed_model/1kG/pop_label_phase3_2504_without_rels", 
     header = TRUE, stringsAsFactors = FALSE) %>%
   mutate(pop = factor(pop)) %>% 
   left_join(data_frame(sample = ids), ., by = "sample")
@@ -151,127 +164,15 @@ system.time({
 })
 
 mod <- eigs(grm, k = 2)
+mod2<-prcomp(grm)
+names(mod2)[2]<-'vectors'
 
 labs <- pop$pop
-plot_pop(mod, labs, main = "GRM on a pre-selected subset of common markers (<0.05%)")
+par(mfrow=c(1, 2))
+plot_pop(mod, labs, main = "JAC on rare markers, using eigs")
+plot_pop(mod2,labs,main='JAC on rare markers, using base::prcomp')
 ``` 
 
-# GRM on a full set of common variants (>5%)
-
-```{r com_full, cache = TRUE}
-bed <- "~/Data/1KGenome/ALL_withDI_EUR503_phase3_nomultialleles_nodupls.bed"
-fam <- "~/Data/1KGenome/ALL_withDI_EUR503_phase3_nomultialleles_nodupls.fam"
-bim <- "~/Data/1KGenome/ALL_withDI_EUR503_phase3_nomultialleles_nodupls.bim"
-
-ret <- system(paste("wc -l", fam), intern = TRUE)
-n <- strsplit(ret, " ") %>% .[[1]] %>% as.integer %>% .[!is.na(.)]
-
-ret <- system(paste("wc -l", bim), intern = TRUE)
-p <- strsplit(ret, " ") %>% .[[1]] %>% as.integer %>% .[!is.na(.)]
-
-path <- path.expand(bed)
-bmat <- BEDMatrix(path = path, p = p)
-
-bmat
-dim(bmat)
-
-ids <- rownames(bmat)
-ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
-head(ids)
-
-pop <- read.table("~/Data/1KGenome/pop_label_phase3_2504_without_rels", 
-    header = TRUE, stringsAsFactors = FALSE) %>%
-  mutate(pop = factor(pop)) %>% 
-  left_join(data_frame(sample = ids), ., by = "sample")
-
-system.time({
-  grm <- bigdat_grm(bmat, batch_size = 5e4, maf_min = 0.05, verbose = 1)
-})
-
-mod <- eigs(grm, k = 2)
-
-labs <- pop$pop
-plot_pop(mod, labs, main = "GRM on a full set of common markers (>5%)")
-```  
-
-
-# Jacard on a full set of rare variants (<1%)
-
-```{r rare_full, cache = TRUE}
-bed <- "~/Data/1KGenome/ALL_withDI_EUR503_phase3_nomultialleles_nodupls.bed"
-fam <- "~/Data/1KGenome/ALL_withDI_EUR503_phase3_nomultialleles_nodupls.fam"
-bim <- "~/Data/1KGenome/ALL_withDI_EUR503_phase3_nomultialleles_nodupls.bim"
-
-ret <- system(paste("wc -l", fam), intern = TRUE)
-n <- strsplit(ret, " ") %>% .[[1]] %>% as.integer %>% .[!is.na(.)]
-
-ret <- system(paste("wc -l", bim), intern = TRUE)
-p <- strsplit(ret, " ") %>% .[[1]] %>% as.integer %>% .[!is.na(.)]
-
-path <- path.expand(bed)
-bmat <- BEDMatrix(path = path, p = p)
-
-bmat
-dim(bmat)
-
-ids <- rownames(bmat)
-ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
-head(ids)
-
-pop <- read.table("~/Data/1KGenome/pop_label_phase3_2504_without_rels", 
-    header = TRUE, stringsAsFactors = FALSE) %>%
-  mutate(pop = factor(pop)) %>% 
-  left_join(data_frame(sample = ids), ., by = "sample")
-
-system.time({
-  grm <- bigdat_grm(bmat, "Jacard", batch_size = 5e4, maf_max = 0.01, verbose = 1)
-})
-
-mod <- eigs(grm, k = 2)
-
-labs <- pop$pop
-plot_pop(mod, labs, main = "Jacard on a full set of rare markers (<1%)")
-```  
-
-# Jacard on a full set of rare variants (<0.5%)
-
-```{r rare_full2, cache = TRUE}
-bed <- "~/Data/1KGenome/ALL_withDI_EUR503_phase3_nomultialleles_nodupls.bed"
-fam <- "~/Data/1KGenome/ALL_withDI_EUR503_phase3_nomultialleles_nodupls.fam"
-bim <- "~/Data/1KGenome/ALL_withDI_EUR503_phase3_nomultialleles_nodupls.bim"
-
-ret <- system(paste("wc -l", fam), intern = TRUE)
-n <- strsplit(ret, " ") %>% .[[1]] %>% as.integer %>% .[!is.na(.)]
-
-ret <- system(paste("wc -l", bim), intern = TRUE)
-p <- strsplit(ret, " ") %>% .[[1]] %>% as.integer %>% .[!is.na(.)]
-
-path <- path.expand(bed)
-bmat <- BEDMatrix(path = path, p = p)
-
-bmat
-dim(bmat)
-
-ids <- rownames(bmat)
-ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
-head(ids)
-
-pop <- read.table("~/Data/1KGenome/pop_label_phase3_2504_without_rels", 
-    header = TRUE, stringsAsFactors = FALSE) %>%
-  mutate(pop = factor(pop)) %>% 
-  left_join(data_frame(sample = ids), ., by = "sample")
-
-system.time({
-  grm <- bigdat_grm(bmat, "Jacard", batch_size = 1e5, maf_max = 0.005, verbose = 1)
-})
-
-grm[1:5, 1:5]
-
-mod <- eigs(grm, k = 2)
-
-labs <- pop$pop
-plot_pop(mod, labs, main = "Jacard on a full set of rare markers (<0.1%)")
-```  
 
 # R session info
 
