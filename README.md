@@ -9,6 +9,7 @@ Covariance/Correlation for big data
 - Vignettes
     - [Population stratification using GRM and Jacard](https://variani.github.io/bigcov/vignettes/popstrat.html) 
     - [Analysis of HapMap data](https://variani.github.io/bigcov/vignettes/hapmap.html) 
+    - [Analysis of 1K Genome data](https://variani.github.io/bigcov/vignettes/1kgenome.html)
 
 ## Installation
 
