@@ -87,7 +87,7 @@ system.time({
 
 ```
    user  system elapsed 
-  3.683   0.088   4.989 
+ 12.517   0.238  12.975 
 ```
 
 
@@ -159,13 +159,14 @@ system.time({
 ```
 
 ```
+  -- filters: callrate / mono /  /  / check_na 
  - bigdat_tcrossprod: computing `tcrossprod`: 40 batches
- - clean markers used in the analysis: 2573397 / 3998895 
+ - clean markers used in the analysis: 1823041 / 3998895 
 ```
 
 ```
    user  system elapsed 
- 39.069   2.817  42.029 
+ 75.877   7.361  84.787 
 ```
 
 
@@ -188,13 +189,14 @@ system.time({
 ```
 
 ```
+  -- filters: callrate / mono / maf_min /  / check_na 
  - bigdat_tcrossprod: computing `tcrossprod`: 40 batches
- - clean markers used in the analysis: 2133712 / 3998895 
+ - clean markers used in the analysis: 1512513 / 3998895 
 ```
 
 ```
    user  system elapsed 
- 27.435   2.696  29.666 
+ 65.931   7.245  73.879 
 ```
 
 
@@ -221,13 +223,14 @@ system.time({
 ```
 
 ```
+  -- filters: callrate / mono /  / maf_max / check_na 
  - bigdat_tcrossprod: computing `tcrossprod`: 40 batches
- - clean markers used in the analysis: 454802 / 3998895 
+ - clean markers used in the analysis: 325300 / 3998895 
 ```
 
 ```
    user  system elapsed 
- 13.057   1.494  14.561 
+ 54.539   6.019  61.509 
 ```
 
 
@@ -252,13 +255,14 @@ system.time({
 ```
 
 ```
+  -- filters: callrate / mono /  / maf_max / check_na 
  - bigdat_tcrossprod: computing `tcrossprod`: 40 batches
- - clean markers used in the analysis: 454802 / 3998895 
+ - clean markers used in the analysis: 325300 / 3998895 
 ```
 
 ```
    user  system elapsed 
- 12.984   1.533  14.413 
+ 56.761   6.012  63.658 
 ```
 
 

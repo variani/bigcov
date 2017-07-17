@@ -2,9 +2,12 @@
 #' @export
 bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
   num_batches = NULL, batch_size = NULL,
-  check_na = TRUE, filter_mono = TRUE, maf_min = NULL, maf_max = NULL,
+  check_na = TRUE, min_callrate = 0.98, filter_mono = TRUE, maf_min = NULL, maf_max = NULL, 
   sparse = TRUE, 
-  cores = 1, verbose = 0,
+  cores = 1, 
+  # debugging
+  num_batches_exec = NULL,
+  verbose = 0,
   ids, ...)
 {
   # GRM as given in Patterson 2006, formulas (1)-(3)
@@ -15,10 +18,20 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
   ### vars
   parallel <- (cores > 1)
 
+  filter_callrate <- !is.null(min_callrate)
   filter_maf_min <- !is.null(maf_min)
   filter_maf_max <- !is.null(maf_max)
   filter_maf <- filter_maf_min | filter_maf_max
-  
+
+  if(verbose > 0) {
+    cat("  -- filters:", ifelse(filter_callrate, "callrate", ""), 
+      "/", ifelse(filter_mono, "mono", ""), 
+      "/", ifelse(filter_maf_min, "maf_min", ""), 
+      "/", ifelse(filter_maf_max, "maf_max", ""), 
+      "/", ifelse(check_na, "check_na", ""), 
+      "\n")  
+  }
+    
   ### convert input `data` into an object of class `bigdat`
   bdat <- bigdat(data, num_batches = num_batches, batch_size = batch_size, ...)
   
@@ -39,7 +52,10 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
     registerDoParallel(cores = cores)
   }
   
-  out <- llply(seq(1, num_batches), function(i) {
+  num_batches_loop <- ifelse(is.null(num_batches_exec), num_batches, num_batches_exec)
+  stopifnot(num_batches_loop <= num_batches)
+  
+  out <- llply(seq(1, num_batches_loop), function(i) {
     if(verbose > 1) {
       cat(" - batch", i, "/", num_batches, "\n")
     }
@@ -54,23 +70,65 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
     
     # prepare num_*
     num_markers <- ncol(mat)
+    
+    num_filtered_callrate <- 0
+    num_filtered_all_na <- 0
     num_filtered_mono <- 0
     num_filtered_maf <- 0
     num_filtered_na <- 0
     
-    if(verbose > 1) {
-      cat("  -- filters:", ifelse(filter_mono, "mono", ""), 
-        "/", ifelse(filter_maf_min, "maf_min", ""), 
-        "/", ifelse(filter_maf_max, "maf_max", ""), 
-        "/", ifelse(check_na, "check_na", ""), 
-        "\n")  
-    }
+    num_markers_clean <- num_markers
     
     # filter
-    if(filter_mono & !filter_maf_min) {
+    if(num_markers_clean > 0 & filter_callrate) {
+      col_callrate <- apply(mat, 2, function(x) sum(!is.na(x))) / nrow(mat)
+      
+      ind_out <- (col_callrate < min_callrate)
+
+      if(any(ind_out)) {
+        num_filtered_callrate <- sum(ind_out)
+        num_markers_clean <- num_markers_clean - num_filtered_callrate
+        
+        if(verbose > 1) {
+          cat("   --- filtered callrate markers:", num_filtered_callrate, "/", num_markers, "\n")
+        }
+        
+        ind_in <- !ind_out
+
+        mat <- mat[, ind_in]
+        col_means <- col_means[ind_in]
+        col_freq <- col_freq[ind_in]
+        col_sd <- col_sd[ind_in]
+      }      
+    }
+    
+    if(num_markers_clean > 0 & !filter_callrate) {
+      ind_out <-  is.na(col_means)
+      
+      if(any(ind_out)) {
+        num_filtered_all_na <- sum(ind_out)
+        num_markers_clean <- num_markers_clean - num_filtered_all_na
+        
+        if(verbose > 1) {
+          cat("   --- filtered all na markers:", num_filtered_all_na, "/", num_markers, "\n")
+        }
+        
+        ind_in <- !ind_out
+
+        mat <- mat[, ind_in]
+        col_means <- col_means[ind_in]
+        col_freq <- col_freq[ind_in]
+        col_sd <- col_sd[ind_in]
+      }
+    }
+    
+    if(num_markers_clean > 0 & filter_mono & !filter_maf_min) {
       ind_out <- (col_means == 0)
+      
       if(any(ind_out)) {
         num_filtered_mono <- sum(ind_out)
+        num_markers_clean <- num_markers_clean - num_filtered_mono
+        
         if(verbose > 1) {
           cat("   --- filtered mono. markers:", num_filtered_mono, "/", num_markers, "\n")
         }
@@ -84,7 +142,7 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
       }
     } 
     
-    if(filter_maf) {
+    if(num_markers_clean > 0 & filter_maf) {
       if(filter_maf_min & filter_maf_max) {
         ind_out <- (col_freq < maf_min | col_freq > maf_max)
       } else if(filter_maf_min) {
@@ -97,6 +155,8 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
       
       if(any(ind_out)) {
         num_filtered_maf <- sum(ind_out)
+        num_markers_clean <- num_markers_clean - num_filtered_maf
+        
         if(verbose > 1) {
           cat("   --- filtered by maf markers:", num_filtered_maf, "/", num_markers, "\n")
         }
@@ -111,7 +171,6 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
     }
     
     ### compute GRM/Jacard
-    num_markers_clean <- ncol(mat)
     if(verbose > 1) {
       cat("  -- clean markers ready for the analysis:", num_markers_clean, "/", num_markers, "\n") 
     }
