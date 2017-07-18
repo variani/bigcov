@@ -46,15 +46,15 @@ plot_pop <- function(mod, labs, ...)
 
 ## Data paths
 
-We define a path to 1K dataset based on the output of `Sys.info()[["nodename"]]`.
+We define a path to 1K dataset based on the output of `Sys.info()[["username"]]`.
 
 ```{r dpath}
-nodename <- Sys.info()[["nodename"]]
+nodename <- Sys.info()[["user"]]
 
 dpath <- switch(nodename,
-  "tau" = "~/Data/1KGenome/",
-  "your_nodename" = "/udd/redpr/mixed_model/1kG/",
-  stop("unknown nodename"))
+  "your_username" = "~/Data/1KGenome/",
+  "redpr" = "/udd/redpr/mixed_model/1kG/",
+  stop("unknown username"))
 ```
 
 
