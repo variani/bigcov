@@ -12,7 +12,7 @@ bibliography: ref.bib
 
 ```{r options, echo = F}
 opts_chunk$set(comment = NA, results = 'markup', tidy = F, message = F, warning = F, echo = T,
-  fig.width = 6, fig.height = 6)
+  fig.width = 12, fig.height = 6)
 ```
   
 # Preliminaries
@@ -44,10 +44,24 @@ plot_pop <- function(mod, labs, ...)
 }
 ```
 
+## Data paths
+
+We define a path to 1K dataset based on the output of `Sys.info()[["nodename"]]`.
+
+```{r dpath}
+nodename <- Sys.info()[["nodename"]]
+
+dpath <- switch(nodename,
+  "tau" = "~/Data/1KGenome/",
+  "your_nodename" = "/udd/redpr/mixed_model/1kG/",
+  stop("unknown nodename"))
+```
+
+
 # GRM on a subset of common variants
 
 ```{r com, cache = TRUE}
-f <- "/udd/redpr/mixed_model/1kG/phase3_common_EUR503_pruned_100ksubset_bed.bed"
+f <- file.path(dpath, "phase3_common_EUR503_pruned_100ksubset_bed.bed")
 bmat <- BEDMatrix(f)
 
 bmat
@@ -57,7 +71,7 @@ ids <- rownames(bmat)
 ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
 head(ids)
 
-pop <- read.table("/udd/redpr/mixed_model/1kG/pop_label_phase3_2504_without_rels", 
+pop <- read.table(file.path(dpath, "pop_label_phase3_2504_without_rels"), 
     header = TRUE, stringsAsFactors = FALSE) %>%
   mutate(pop = factor(pop)) %>% 
   left_join(data_frame(sample = ids), ., by = "sample")
@@ -79,7 +93,7 @@ plot_pop(mod2,labs,main='GRM on common markers, using base::prcomp')
 # GRM on a subset of rare variants
 
 ```{r rare, cache = TRUE}
-f <- "/udd/redpr/mixed_model/1kG/phase3_rare_EUR503_nosingle_100ksubset_bed.bed"
+f <- file.path(dpath, "phase3_rare_EUR503_nosingle_100ksubset_bed.bed")
 bmat <- BEDMatrix(f)
 
 bmat
@@ -89,7 +103,7 @@ ids <- rownames(bmat)
 ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
 head(ids)
 
-pop <- read.table("/udd/redpr/mixed_model/1kG/pop_label_phase3_2504_without_rels", 
+pop <- read.table(file.path(dpath, "pop_label_phase3_2504_without_rels"), 
     header = TRUE, stringsAsFactors = FALSE) %>%
   mutate(pop = factor(pop)) %>% 
   left_join(data_frame(sample = ids), ., by = "sample")
@@ -111,7 +125,7 @@ plot_pop(mod2,labs,main='GRM on rare markers, using base::prcomp')
 # Jacard on a subset of rare variants 
 
 ```{r rare_jacard, cache = TRUE}
-f <- "/udd/redpr/mixed_model/1kG/phase3_rare_EUR503_nosingle_100ksubset_bed.bed"
+f <- file.path(dpath, "phase3_rare_EUR503_nosingle_100ksubset_bed.bed")
 bmat <- BEDMatrix(f)
 
 bmat
@@ -121,7 +135,7 @@ ids <- rownames(bmat)
 ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
 head(ids)
 
-pop <- read.table("/udd/redpr/mixed_model/1kG/pop_label_phase3_2504_without_rels", 
+pop <- read.table(file.path(dpath, "pop_label_phase3_2504_without_rels"), 
     header = TRUE, stringsAsFactors = FALSE) %>%
   mutate(pop = factor(pop)) %>% 
   left_join(data_frame(sample = ids), ., by = "sample")
@@ -144,7 +158,7 @@ plot_pop(mod2,labs,main='JAC on rare markers, using base::prcomp')
 # Jacard on a subset of rare variants (<0.5%)
 
 ```{r rare_jacard2, cache = TRUE}
-f <- "/udd/redpr/mixed_model/1kG/phase3_rare_EUR503_nosingle_100ksubset_bed.bed"
+f <- file.path(dpath, "phase3_rare_EUR503_nosingle_100ksubset_bed.bed")
 bmat <- BEDMatrix(f)
 
 bmat
@@ -154,7 +168,7 @@ ids <- rownames(bmat)
 ids <- strsplit(ids, "_") %>% sapply(function(x) x[1])
 head(ids)
 
-pop <- read.table("/udd/redpr/mixed_model/1kG/pop_label_phase3_2504_without_rels", 
+pop <- read.table(file.path(dpath, "pop_label_phase3_2504_without_rels"), 
     header = TRUE, stringsAsFactors = FALSE) %>%
   mutate(pop = factor(pop)) %>% 
   left_join(data_frame(sample = ids), ., by = "sample")

@@ -1,11 +1,25 @@
 
+#' @param binary Data are binary attributes or not? Default, \code{FALSE}.
+#'    The binary format of data is assumed to compute the Jacard similarity matrix.
+#'    In general case, all non-zero values are converted to binaries entries.
+#'    If your data is binary, set to \code{TRUE}. 
+#'
 #' @export
-jacard <- function(data, ids, sparse = TRUE, ...)
+jacard <- function(data, ids, sparse = TRUE, binary = FALSE, ...)
 {
   # Cortesy of https://stats.stackexchange.com/a/89947
-  
+  # See also https://stats.stackexchange.com/a/61910
+    
+  # convert data to objects of Matrix class, 
+  # as computation is a way faster for sparse data
   M <- Matrix(data, sparse = sparse)
   
+  # convert to binary from any non-zero values
+  if(!binary) {
+    M@x <- rep(1, length(M@x))
+  }
+  
+  ### main computation based on code at https://stats.stackexchange.com/a/89947
   A <- tcrossprod(M)
   
   # pairs with non-zero common values
@@ -33,6 +47,8 @@ bigdat_jacard <- function(data, num_batches = NULL, batch_size = NULL,
   verbose = 0,
   ids, ...)
 {
+  stop("depreciated")
+  
   ### args
   stopifnot(!check_na)
   

@@ -1,14 +1,6 @@
----
-title: "Analysis of 1K Genome data"
-author: "Andrey Ziyatdinov"
-date: "2017-07-17"
-output:
-  html_document:
-    theme: united
-    toc: true
-    keep_md: true
-bibliography: ref.bib    
----
+# Analysis of 1K Genome data
+Andrey Ziyatdinov  
+`r Sys.Date()`  
 
 
   
@@ -43,18 +35,33 @@ plot_pop <- function(mod, labs, ...)
 }
 ```
 
+## Data paths
+
+We define a path to 1K dataset based on the output of `Sys.info()[["nodename"]]`.
+
+
+```r
+nodename <- Sys.info()[["nodename"]]
+
+dpath <- switch(nodename,
+  "tau" = "~/Data/1KGenome/",
+  "your_nodename" = "/udd/redpr/mixed_model/1kG/",
+  stop("unknown nodename"))
+```
+
+
 # GRM on a subset of common variants
 
 
 ```r
-f <- "/udd/redpr/mixed_model/1kG/phase3_common_EUR503_pruned_100ksubset_bed.bed"
+f <- file.path(dpath, "phase3_common_EUR503_pruned_100ksubset_bed.bed")
 bmat <- BEDMatrix(f)
 
 bmat
 ```
 
 ```
-BEDMatrix: 503 x 100000 [/udd/redpr/mixed_model/1kG/phase3_common_EUR503_pruned_100ksubset_bed.bed]
+BEDMatrix: 503 x 100000 [/home/andrey/Data/1KGenome//phase3_common_EUR503_pruned_100ksubset_bed.bed]
 ```
 
 ```r
@@ -76,7 +83,7 @@ head(ids)
 ```
 
 ```r
-pop <- read.table("/udd/redpr/mixed_model/1kG/pop_label_phase3_2504_without_rels", 
+pop <- read.table(file.path(dpath, "pop_label_phase3_2504_without_rels"), 
     header = TRUE, stringsAsFactors = FALSE) %>%
   mutate(pop = factor(pop)) %>% 
   left_join(data_frame(sample = ids), ., by = "sample")
@@ -94,7 +101,7 @@ system.time({
 
 ```
    user  system elapsed 
- 44.721   0.287  45.068 
+ 45.256   1.804  47.180 
 ```
 
 ```r
@@ -108,20 +115,20 @@ plot_pop(mod, labs, main = "GRM on common markers, using eigs")
 plot_pop(mod2,labs,main='GRM on common markers, using base::prcomp')
 ```
 
-![plot of chunk com](figure/com-1.png)
+![](1kgenome_files/figure-html/com-1.png)<!-- -->
 
 # GRM on a subset of rare variants
 
 
 ```r
-f <- "/udd/redpr/mixed_model/1kG/phase3_rare_EUR503_nosingle_100ksubset_bed.bed"
+f <- file.path(dpath, "phase3_rare_EUR503_nosingle_100ksubset_bed.bed")
 bmat <- BEDMatrix(f)
 
 bmat
 ```
 
 ```
-BEDMatrix: 503 x 100000 [/udd/redpr/mixed_model/1kG/phase3_rare_EUR503_nosingle_100ksubset_bed.bed]
+BEDMatrix: 503 x 100000 [/home/andrey/Data/1KGenome//phase3_rare_EUR503_nosingle_100ksubset_bed.bed]
 ```
 
 ```r
@@ -143,7 +150,7 @@ head(ids)
 ```
 
 ```r
-pop <- read.table("/udd/redpr/mixed_model/1kG/pop_label_phase3_2504_without_rels", 
+pop <- read.table(file.path(dpath, "pop_label_phase3_2504_without_rels"), 
     header = TRUE, stringsAsFactors = FALSE) %>%
   mutate(pop = factor(pop)) %>% 
   left_join(data_frame(sample = ids), ., by = "sample")
@@ -161,7 +168,7 @@ system.time({
 
 ```
    user  system elapsed 
- 48.138   0.214  48.439 
+ 44.808   1.632  46.665 
 ```
 
 ```r
@@ -175,20 +182,20 @@ plot_pop(mod, labs, main = "GRM on rare markers, using eigs")
 plot_pop(mod2,labs,main='GRM on rare markers, using base::prcomp')
 ```
 
-![plot of chunk rare](figure/rare-1.png)
+![](1kgenome_files/figure-html/rare-1.png)<!-- -->
 
 # Jacard on a subset of rare variants 
 
 
 ```r
-f <- "/udd/redpr/mixed_model/1kG/phase3_rare_EUR503_nosingle_100ksubset_bed.bed"
+f <- file.path(dpath, "phase3_rare_EUR503_nosingle_100ksubset_bed.bed")
 bmat <- BEDMatrix(f)
 
 bmat
 ```
 
 ```
-BEDMatrix: 503 x 100000 [/udd/redpr/mixed_model/1kG/phase3_rare_EUR503_nosingle_100ksubset_bed.bed]
+BEDMatrix: 503 x 100000 [/home/andrey/Data/1KGenome//phase3_rare_EUR503_nosingle_100ksubset_bed.bed]
 ```
 
 ```r
@@ -210,7 +217,7 @@ head(ids)
 ```
 
 ```r
-pop <- read.table("/udd/redpr/mixed_model/1kG/pop_label_phase3_2504_without_rels", 
+pop <- read.table(file.path(dpath, "pop_label_phase3_2504_without_rels"), 
     header = TRUE, stringsAsFactors = FALSE) %>%
   mutate(pop = factor(pop)) %>% 
   left_join(data_frame(sample = ids), ., by = "sample")
@@ -228,7 +235,7 @@ system.time({
 
 ```
    user  system elapsed 
- 14.287   0.217  14.531 
+ 11.616   0.668  12.492 
 ```
 
 ```r
@@ -242,21 +249,21 @@ plot_pop(mod, labs, main = "JAC on rare markers, using eigs")
 plot_pop(mod2,labs,main='JAC on rare markers, using base::prcomp')
 ```
 
-![plot of chunk rare_jacard](figure/rare_jacard-1.png)
+![](1kgenome_files/figure-html/rare_jacard-1.png)<!-- -->
 
 
 # Jacard on a subset of rare variants (<0.5%)
 
 
 ```r
-f <- "/udd/redpr/mixed_model/1kG/phase3_rare_EUR503_nosingle_100ksubset_bed.bed"
+f <- file.path(dpath, "phase3_rare_EUR503_nosingle_100ksubset_bed.bed")
 bmat <- BEDMatrix(f)
 
 bmat
 ```
 
 ```
-BEDMatrix: 503 x 100000 [/udd/redpr/mixed_model/1kG/phase3_rare_EUR503_nosingle_100ksubset_bed.bed]
+BEDMatrix: 503 x 100000 [/home/andrey/Data/1KGenome//phase3_rare_EUR503_nosingle_100ksubset_bed.bed]
 ```
 
 ```r
@@ -278,7 +285,7 @@ head(ids)
 ```
 
 ```r
-pop <- read.table("/udd/redpr/mixed_model/1kG/pop_label_phase3_2504_without_rels", 
+pop <- read.table(file.path(dpath, "pop_label_phase3_2504_without_rels"), 
     header = TRUE, stringsAsFactors = FALSE) %>%
   mutate(pop = factor(pop)) %>% 
   left_join(data_frame(sample = ids), ., by = "sample")
@@ -296,7 +303,7 @@ system.time({
 
 ```
    user  system elapsed 
- 14.807   0.051  14.884 
+ 12.312   0.100  12.461 
 ```
 
 ```r
@@ -310,7 +317,7 @@ plot_pop(mod, labs, main = "JAC on rare markers, using eigs")
 plot_pop(mod2,labs,main='JAC on rare markers, using base::prcomp')
 ```
 
-![plot of chunk rare_jacard2](figure/rare_jacard2-1.png)
+![](1kgenome_files/figure-html/rare_jacard2-1.png)<!-- -->
 
 
 # R session info
@@ -321,13 +328,9 @@ sessionInfo()
 ```
 
 ```
-R version 3.4.0 (2017-04-21)
-Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: CentOS release 6.8 (Final)
-
-Matrix products: default
-BLAS: /app/R-3.4.0_nonMKL@i86-rhel6.0/lib64/R/lib/libRblas.so
-LAPACK: /app/R-3.4.0_nonMKL@i86-rhel6.0/lib64/R/lib/libRlapack.so
+R version 3.3.3 (2017-03-06)
+Platform: i686-pc-linux-gnu (32-bit)
+Running under: Ubuntu 14.04.5 LTS
 
 locale:
  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -341,23 +344,22 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] bindrcpp_0.2    bigcov_0.1.1    devtools_1.13.2 dplyr_0.7.1    
-[5] magrittr_1.5    RSpectra_0.12-0 BEDMatrix_1.4.0 markdown_0.8   
-[9] knitr_1.16     
+[1] bigcov_0.1.1    dplyr_0.5.0     magrittr_1.5    RSpectra_0.12-0
+[5] BEDMatrix_1.4.0 rmarkdown_1.3   knitr_1.15.1    devtools_1.12.0
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.11          highr_0.6             compiler_3.4.0       
- [4] plyr_1.8.4            bindr_0.1             iterators_1.0.8      
- [7] tools_3.4.0           crochet_1.0.0         testthat_1.0.2       
-[10] digest_0.6.12         evaluate_0.10.1       memoise_1.1.0        
-[13] tibble_1.3.3          lattice_0.20-35       pkgconfig_2.0.1      
-[16] rlang_0.1.1           Matrix_1.2-10         foreach_1.4.3        
-[19] synchronicity_1.1.9.1 commonmark_1.2        parallel_3.4.0       
-[22] withr_1.0.2           stringr_1.2.0         roxygen2_6.0.1       
-[25] xml2_1.1.1            grid_3.4.0            data.table_1.10.4    
-[28] glue_1.1.1            R6_2.2.2              bigmemory_4.5.19     
-[31] bigmemory.sri_0.1.3   codetools_0.2-15      assertthat_0.2.0     
-[34] stringi_1.1.5         doParallel_1.0.10     crayon_1.3.2         
+ [1] codetools_0.2-15      digest_0.6.10         htmltools_0.3.5      
+ [4] R6_2.2.0              assertthat_0.1        rprojroot_1.1        
+ [7] grid_3.3.3            stringr_1.1.0         bigmemory.sri_0.1.3  
+[10] testthat_1.0.2        tibble_1.2            lattice_0.20-34      
+[13] DBI_0.5-1             foreach_1.4.3         roxygen2_5.0.1       
+[16] iterators_1.0.8       Matrix_1.2-7.1        plyr_1.8.4           
+[19] crochet_1.0.0         data.table_1.10.5     stringi_1.1.2        
+[22] evaluate_0.10         yaml_2.1.14           tools_3.3.3          
+[25] parallel_3.3.3        withr_1.0.2           synchronicity_1.1.9.1
+[28] lazyeval_0.2.0        crayon_1.3.2          backports_1.0.4      
+[31] memoise_1.0.0         bigmemory_4.5.19      Rcpp_0.12.11         
+[34] doParallel_1.0.10    
 ```
 
 # License

@@ -2,6 +2,7 @@
 #' @export
 bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
   num_batches = NULL, batch_size = NULL,
+  filter = TRUE, 
   check_na = TRUE, min_callrate = 0.98, filter_mono = TRUE, maf_min = NULL, maf_max = NULL, 
   sparse = TRUE, 
   cores = 1, 
@@ -18,20 +19,22 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
   ### vars
   parallel <- (cores > 1)
 
-  filter_callrate <- !is.null(min_callrate)
-  filter_maf_min <- !is.null(maf_min)
-  filter_maf_max <- !is.null(maf_max)
-  filter_maf <- filter_maf_min | filter_maf_max
+  if(filter) {
+    filter_callrate <- !is.null(min_callrate)
+    filter_maf_min <- !is.null(maf_min)
+    filter_maf_max <- !is.null(maf_max)
+    filter_maf <- filter_maf_min | filter_maf_max
 
-  if(verbose > 0) {
-    cat("  -- filters:", ifelse(filter_callrate, "callrate", ""), 
-      "/", ifelse(filter_mono, "mono", ""), 
-      "/", ifelse(filter_maf_min, "maf_min", ""), 
-      "/", ifelse(filter_maf_max, "maf_max", ""), 
-      "/", ifelse(check_na, "check_na", ""), 
-      "\n")  
+    if(verbose > 0) {
+      cat("  -- filters:", ifelse(filter_callrate, "callrate", ""), 
+        "/", ifelse(filter_mono, "mono", ""), 
+        "/", ifelse(filter_maf_min, "maf_min", ""), 
+        "/", ifelse(filter_maf_max, "maf_max", ""), 
+        "/", ifelse(check_na, "check_na", ""), 
+        "\n")  
+    }
   }
-    
+  
   ### convert input `data` into an object of class `bigdat`
   bdat <- bigdat(data, num_batches = num_batches, batch_size = batch_size, ...)
   
@@ -71,104 +74,106 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
     # prepare num_*
     num_markers <- ncol(mat)
     
-    num_filtered_callrate <- 0
-    num_filtered_all_na <- 0
-    num_filtered_mono <- 0
-    num_filtered_maf <- 0
-    num_filtered_na <- 0
-    
+    # filter
     num_markers_clean <- num_markers
     
-    # filter
-    if(num_markers_clean > 0 & filter_callrate) {
-      col_callrate <- apply(mat, 2, function(x) sum(!is.na(x))) / nrow(mat)
-      
-      ind_out <- (col_callrate < min_callrate)
-
-      if(any(ind_out)) {
-        num_filtered_callrate <- sum(ind_out)
-        num_markers_clean <- num_markers_clean - num_filtered_callrate
-        
-        if(verbose > 1) {
-          cat("   --- filtered callrate markers:", num_filtered_callrate, "/", num_markers, "\n")
-        }
-        
-        ind_in <- !ind_out
-
-        mat <- mat[, ind_in]
-        col_means <- col_means[ind_in]
-        col_freq <- col_freq[ind_in]
-        col_sd <- col_sd[ind_in]
-      }      
-    }
+    if(filter) {
+      num_filtered_callrate <- 0
+      num_filtered_all_na <- 0
+      num_filtered_mono <- 0
+      num_filtered_maf <- 0
+      num_filtered_na <- 0
     
-    if(num_markers_clean > 0 & !filter_callrate) {
-      ind_out <-  is.na(col_means)
+      if(num_markers_clean > 0 & filter_callrate) {
+        col_callrate <- apply(mat, 2, function(x) sum(!is.na(x))) / nrow(mat)
       
-      if(any(ind_out)) {
-        num_filtered_all_na <- sum(ind_out)
-        num_markers_clean <- num_markers_clean - num_filtered_all_na
-        
-        if(verbose > 1) {
-          cat("   --- filtered all na markers:", num_filtered_all_na, "/", num_markers, "\n")
-        }
-        
-        ind_in <- !ind_out
+        ind_out <- (col_callrate < min_callrate)
 
-        mat <- mat[, ind_in]
-        col_means <- col_means[ind_in]
-        col_freq <- col_freq[ind_in]
-        col_sd <- col_sd[ind_in]
+        if(any(ind_out)) {
+          num_filtered_callrate <- sum(ind_out)
+          num_markers_clean <- num_markers_clean - num_filtered_callrate
+        
+          if(verbose > 1) {
+            cat("   --- filtered callrate markers:", num_filtered_callrate, "/", num_markers, "\n")
+          }
+        
+          ind_in <- !ind_out
+  
+          mat <- mat[, ind_in]
+          col_means <- col_means[ind_in]
+          col_freq <- col_freq[ind_in]
+          col_sd <- col_sd[ind_in]
+        }      
       }
-    }
     
-    if(num_markers_clean > 0 & filter_mono & !filter_maf_min) {
-      ind_out <- (col_means == 0)
+      if(num_markers_clean > 0 & !filter_callrate) {
+        ind_out <-  is.na(col_means)
       
-      if(any(ind_out)) {
-        num_filtered_mono <- sum(ind_out)
-        num_markers_clean <- num_markers_clean - num_filtered_mono
+        if(any(ind_out)) {
+          num_filtered_all_na <- sum(ind_out)
+          num_markers_clean <- num_markers_clean - num_filtered_all_na
         
-        if(verbose > 1) {
-          cat("   --- filtered mono. markers:", num_filtered_mono, "/", num_markers, "\n")
-        }
+          if(verbose > 1) {
+            cat("   --- filtered all na markers:", num_filtered_all_na, "/", num_markers, "\n")
+          }
         
-        ind_in <- !ind_out
+          ind_in <- !ind_out
 
-        mat <- mat[, ind_in]
-        col_means <- col_means[ind_in]
-        col_freq <- col_freq[ind_in]
-        col_sd <- col_sd[ind_in]
+          mat <- mat[, ind_in]
+          col_means <- col_means[ind_in]
+          col_freq <- col_freq[ind_in]
+          col_sd <- col_sd[ind_in]
+        }
       }
-    } 
     
-    if(num_markers_clean > 0 & filter_maf) {
-      if(filter_maf_min & filter_maf_max) {
-        ind_out <- (col_freq < maf_min | col_freq > maf_max)
-      } else if(filter_maf_min) {
-        ind_out <- (col_freq < maf_min)
-      } else if(filter_maf_max) {
-        ind_out <- (col_freq > maf_max)
-      } else {
-        stop("filter_maf")
-      }
+     if(num_markers_clean > 0 & filter_mono & !filter_maf_min) {
+        ind_out <- (col_means == 0)
       
-      if(any(ind_out)) {
-        num_filtered_maf <- sum(ind_out)
-        num_markers_clean <- num_markers_clean - num_filtered_maf
+        if(any(ind_out)) {
+          num_filtered_mono <- sum(ind_out)
+          num_markers_clean <- num_markers_clean - num_filtered_mono
         
-        if(verbose > 1) {
-          cat("   --- filtered by maf markers:", num_filtered_maf, "/", num_markers, "\n")
-        }
+          if(verbose > 1) {
+            cat("   --- filtered mono. markers:", num_filtered_mono, "/", num_markers, "\n")
+          }
         
-        ind_in <- !ind_out
+          ind_in <- !ind_out
 
-        mat <- mat[, ind_in]
-        col_means <- col_means[ind_in]
-        col_freq <- col_freq[ind_in]
-        col_sd <- col_sd[ind_in]
+          mat <- mat[, ind_in]
+          col_means <- col_means[ind_in]
+          col_freq <- col_freq[ind_in]
+          col_sd <- col_sd[ind_in]
+        }
+      } 
+    
+      if(num_markers_clean > 0 & filter_maf) {
+        if(filter_maf_min & filter_maf_max) {
+          ind_out <- (col_freq < maf_min | col_freq > maf_max)
+        } else if(filter_maf_min) {
+          ind_out <- (col_freq < maf_min)
+        } else if(filter_maf_max) {
+          ind_out <- (col_freq > maf_max)
+        } else {
+          stop("filter_maf")
+        }
+      
+       if(any(ind_out)) {
+          num_filtered_maf <- sum(ind_out)
+          num_markers_clean <- num_markers_clean - num_filtered_maf
+        
+          if(verbose > 1) {
+            cat("   --- filtered by maf markers:", num_filtered_maf, "/", num_markers, "\n")
+          }
+        
+          ind_in <- !ind_out
+  
+          mat <- mat[, ind_in]
+          col_means <- col_means[ind_in]
+          col_freq <- col_freq[ind_in]
+          col_sd <- col_sd[ind_in]
+        }
       }
-    }
+    } # end of `if(filter)`
     
     ### compute GRM/Jacard
     if(verbose > 1) {
