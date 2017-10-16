@@ -31,12 +31,12 @@ bigdat <- function(x, rows = NULL,
   out <- list(path = path)
   
   ### `x` as list
-  if(class(x) != "list") {
+  if(class(x)[1] != "list") {
     x <- list(x)
   }
   
   # define `class`
-  x_classes <- sapply(x, class)
+  x_classes <- sapply(x, function(elem) class(elem)[1])
   stopifnot(all(x_classes == x_classes[1]))
   
   out$class <- x_classes[1]
@@ -57,9 +57,8 @@ bigdat <- function(x, rows = NULL,
     out$data <- x
     
     oldClass(out) <- c("bigdatBEDMatrix", "bigdat")
-  }
-  else {
-   stop("not supported class:", out$class)
+  } else {
+   stop("not supported class: ", out$class)
   }
 
   ### `num_batches`
