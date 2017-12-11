@@ -24,7 +24,8 @@ Suggests:
     pls,
     RSpectra,
     parallel,
-    iterators
+    iterators,
+    reshape2
 Collate:
     'package.R'
     'utils.R'

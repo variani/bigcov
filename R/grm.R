@@ -1,6 +1,6 @@
 
 #' @export
-bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
+bigdat_grm <- function(data, grm = c("Patterson", "GEMMA", "Jacard"),
   num_batches = NULL, batch_size = NULL,
   filter = TRUE, 
   check_na = TRUE, min_callrate = 0.98, filter_mono = TRUE, maf_min = NULL, maf_max = NULL, 
@@ -181,7 +181,7 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
     }
     row_sums <- NULL  
     
-    if(grm %in% c("Patterson")) {
+    if(grm %in% c("Patterson", "GEMMA")) {
       # center
       mat <- sweep(mat, 2, col_means, "-")
       # impute missing
@@ -194,8 +194,10 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
         }
       }
       # scale
-      mat <- sweep(mat, 2, col_sd , "/")
-    
+      if(!(grm %in% c("GEMMA"))) {
+        mat <- sweep(mat, 2, col_sd , "/")
+      }
+      
       # write result into `product`
       #product_batch <- tcrossprod(mat)
       lock(mutex_product)
@@ -252,7 +254,7 @@ bigdat_grm <- function(data, grm = c("Patterson", "Jacard"),
   }
       
   ### process output from batches
-  if(grm %in% c("Patterson")) {
+  if(grm %in% c("Patterson", "GEMMA")) {
     product <- as.matrix(product)
     product <- product / M
   } else if(grm %in% "Jacard") {
