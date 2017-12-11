@@ -6,6 +6,7 @@
 #' @export
 convert_cdat <- function(cmat, diag = TRUE, lower = TRUE)
 {
+  # @ https://stackoverflow.com/questions/28035001/transform-correlation-matrix-into-dataframe-with-records-for-each-row-column-pai
   stopifnot(requireNamespace("reshape2"))
   
   filter_na <- !lower
