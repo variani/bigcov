@@ -16,6 +16,7 @@ Imports:
     bigmemory,
     synchronicity,
     BEDMatrix,
+    gaston,
     doParallel
 Suggests:
     testthat,

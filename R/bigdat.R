@@ -14,6 +14,10 @@
 #' @exportClass bigdatBEDMatrix
 #
 
+#' S3 class bigdatGaston.
+#' @exportClass bigdatGaston
+#
+
 #--------------
 # Constructors
 #--------------
@@ -22,6 +26,8 @@
 bigdat <- function(x, rows = NULL, 
   num_batches = NULL, batch_size = NULL, 
   path = ".", 
+  # Gaston
+  as_matrix = TRUE,
   ...)
 {
   ### args
@@ -57,6 +63,12 @@ bigdat <- function(x, rows = NULL,
     out$data <- x
     
     oldClass(out) <- c("bigdatBEDMatrix", "bigdat")
+  } else if(out$class == "bed.matrix") {
+    out$data <- x
+    
+    out$as_matrix <- as_matrix
+    
+    oldClass(out) <- c("bigdatGaston", "bigdat")
   } else {
    stop("not supported class: ", out$class)
   }
@@ -235,6 +247,16 @@ bigdat_slice.bigdat <- function(x, elem, rows, cols, ...) x$data[[elem]][rows, c
 
 bigdat_slice.bigdatBigMat <- function(x, elem, rows, cols, ...) bigdat_attach(x, elem)[rows, cols, drop = FALSE]
 
+bigdat_slice.bigdatGaston <- function(x, elem, rows, cols, ...) 
+{
+  slice <- x$data[[elem]][rows, cols]
+  
+  if(x$as_matrix) {
+    slice <- as.matrix(slice)
+  }
+  
+  return(slice)
+}
 
 bigdat_data.bigdat <- function(x, elem, rows, cols, ...)
 {

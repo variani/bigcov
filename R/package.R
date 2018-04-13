@@ -6,6 +6,7 @@
 #' @import Matrix
 #' @import bigmemory
 #' @import BEDMatrix
+#' @import gaston
 #'
 #' @importFrom synchronicity boost.mutex lock unlock
 #' @importFrom doParallel registerDoParallel stopImplicitCluster
